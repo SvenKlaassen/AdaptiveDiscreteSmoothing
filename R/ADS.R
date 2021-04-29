@@ -13,9 +13,35 @@
 #' @param parallel Parallel execution
 #' @param ... Additional arguments.
 #'
-#' @return
+#' @return An S3 object of class `ADS` with components
+#' * `learnerlist` A list of the estimated learners.
+#' * `weight_path` An array containing the different weight matrices.
+#' * `fitted.values` The corresponding predictions.
+#' * `level_ind` A vector containing the indications of the levels (of the individuals.)
+#' * `task_list` A list containing the `mlr3` tasks.
+#' * `fit_list` A list of the fits corresponding to the indiviuals.
+#' * `input` A list of important inputs (the name of the column of the individuals.)
+#'
+#' @seealso `predict.ADS`, `autoplot.ADS`
 #' @export
 #'
+#' @examples
+#' #create data
+#' n <- 200; N <- 10; p <- 3
+#' X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
+#' ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
+#'
+#' #create 2 different types
+#' Y <- X%*%rep(1,p) * (as.numeric(ind) <= N/2) + rnorm(n*N,0,1)
+#'
+#' data <- data.frame(X,"y" = Y, "ind" = ind)
+#'
+#' model <- ADS(df = data,target = "y",individ = "ind")
+#'
+#'
+#'
+
+
 ADS <- function(df,
                 target,
                 individ,
@@ -44,8 +70,6 @@ ADS <- function(df,
   } else {
     checkmate::assertTRUE(length(gamma) == iterations)
   }
-
-
 
   #number of individuals
   ind <- df[,individ]
@@ -115,7 +139,7 @@ ADS <- function(df,
   fit <- rep(NA,n)
   invisible(sapply(1:N, function(i) fit[ind_index == i] <<- fit_list[[i]]$response))
   names(fit) <- 1:n
-  input <- list("individ" = individ, "train_ids" = 1:n)
+  input <- list("individ" = individ)
   results <- list("learner_list" = learner_list,
                   "Weight_path" = W_path,
                   "fitted.values" = fit,
@@ -133,7 +157,7 @@ ADS <- function(df,
 #' @param newdata New dataframe.
 #' @param ... Additional arguments
 #'
-#' @return
+#' @return A vector containig the predicted values.
 #' @export
 #'
 predict.ADS <- function(object,
@@ -169,14 +193,14 @@ predict.ADS <- function(object,
 #' @param object `ADS` object.
 #' @param iterations Iterations of the weightmatrix to plot (1 equals the input matrix, default is diagonal.)
 #'
-#' @return
+#' @return A `ggplot` object with a heatmap.
 #'
 #' @export
 #' @importFrom ggplot2 autoplot
 #'
 autoplot.ADS <- function(object, iterations = 1:2){
-  df_data <- reshape2::melt(object$Weight_path[,,iterations])
-  heatmap <- ggplot2::ggplot(df_data, ggplot2::aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
+  df <- reshape2::melt(object$Weight_path[,,iterations])
+  heatmap <- ggplot2::ggplot(df, ggplot2::aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
     ggplot2::geom_tile() +
     ggplot2::xlab(label = "Covariates") +
     ggplot2::ylab(label = "Covariates") +

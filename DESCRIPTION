@@ -20,9 +20,9 @@ Imports:
     future.apply,
     mlr3,
     mlr3learners,
-    glmnet,
     reshape2,
-    ggplot2
+    ggplot2,
+    rlang
 Suggests: 
-    testthat (>= 3.0.0), patrick
+    testthat (>= 3.0.0), patrick, glmnet
 Config/testthat/edition: 3

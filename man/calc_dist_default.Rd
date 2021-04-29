@@ -27,7 +27,7 @@ calc_dist_default(
 \item{...}{Additional arguments}
 }
 \value{
-
+A distance between the two models.
 }
 \description{
 Distance between models.

@@ -12,7 +12,7 @@
 \item{iterations}{Iterations of the weightmatrix to plot (1 equals the input matrix, default is diagonal.)}
 }
 \value{
-
+A \code{ggplot} object with a heatmap.
 }
 \description{
 Plot a heatmap of the weight matrix.

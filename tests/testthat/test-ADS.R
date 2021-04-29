@@ -28,6 +28,9 @@ for (learner in learnerlist){
       model_fit <- predict(model,newdata = data)
       expect_length(model_fit$fit,n*N)
       expect_equal(as.vector(model$fitted.values),as.vector(model_fit$fit))
+
+      weight_plot <- autoplot(model)
+      expect_class(weight_plot,"gg")
     }
   )
 }

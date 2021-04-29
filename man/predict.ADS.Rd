@@ -14,7 +14,7 @@
 \item{...}{Additional arguments}
 }
 \value{
-
+A vector containig the predicted values.
 }
 \description{
 Predict Method for ADS object.

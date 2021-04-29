@@ -45,8 +45,36 @@ ADS(
 \item{...}{Additional arguments.}
 }
 \value{
-
+An S3 object of class \code{ADS} with components
+\itemize{
+\item \code{learnerlist} A list of the estimated learners.
+\item \code{weight_path} An array containing the different weight matrices.
+\item \code{fitted.values} The corresponding predictions.
+\item \code{level_ind} A vector containing the indications of the levels (of the individuals.)
+\item \code{task_list} A list containing the \code{mlr3} tasks.
+\item \code{fit_list} A list of the fits corresponding to the indiviuals.
+\item \code{input} A list of important inputs (the name of the column of the individuals.)
+}
 }
 \description{
 Adaptive Discrete Smoothing Algorithm
+}
+\examples{
+#create data
+n <- 200; N <- 10; p <- 3
+X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
+ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
+
+#create 2 different types
+Y <- X\%*\%rep(1,p) * (as.numeric(ind) <= N/2) + rnorm(n*N,0,1)
+
+data <- data.frame(X,"y" = Y, "ind" = ind)
+
+model <- ADS(df = data,target = "y",individ = "ind")
+
+
+
+}
+\seealso{
+\code{predict.ADS}, \code{autoplot.ADS}
 }
