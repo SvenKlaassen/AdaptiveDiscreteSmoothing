@@ -20,7 +20,7 @@ ADS <- function(df,
                 target,
                 individ,
                 learner = mlr3::mlr_learners$get("regr.lm"),
-                delta = 0.5,
+                delta = 0.7,
                 gamma = 1,
                 iterations = 2,
                 W_start = NULL,
@@ -163,6 +163,35 @@ predict.ADS <- function(object,
 }
 
 
+#' Plot a heatmap of the weight matrix.
+#'
+#'
+#' @param object `ADS` object.
+#' @param iterations Iterations of the weightmatrix to plot (1 equals the input matrix, default is diagonal.)
+#'
+#' @return
+#'
+#' @export
+#' @importFrom ggplot2 autoplot
+#'
+autoplot.ADS <- function(object, iterations = 1:2){
+  df_data <- reshape2::melt(object$Weight_path[,,iterations])
+  heatmap <- ggplot2::ggplot(df_data, ggplot2::aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
+    ggplot2::geom_tile() +
+    ggplot2::xlab(label = "Covariates") +
+    ggplot2::ylab(label = "Covariates") +
+    ggplot2::scale_x_continuous(breaks = 1:length(object$level_ind)) +
+    ggplot2::scale_y_continuous(breaks = 1:length(object$level_ind)) +
+    ggplot2::facet_wrap(~ .data$Var3) +
+    ggplot2::scale_fill_gradient(name = "Weight",low = "#FFFFFF",high = "#012345") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(strip.placement = "outside",
+          plot.title = ggplot2::element_text(hjust = 0.5),
+          strip.background = ggplot2::element_rect(fill = "#EEEEEE", color = "#FFFFFF")) +
+    ggplot2::ggtitle(label = "Weight Matrix") +
+    ggplot2::theme(legend.position="bottom")
+  return(heatmap)
+}
 
 
 
