@@ -215,8 +215,8 @@ ADS <- R6Class("ADS",
                    df$Var3 <- rep(iterations,each = nlevels(private$ind_)^2)
                    heatmap <- ggplot(df, aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
                      geom_tile() +
-                     xlab(label = "Covariates") +
-                     ylab(label = "Covariates") +
+                     xlab(label = "Individual") +
+                     ylab(label = "Individual") +
                      scale_x_continuous(breaks = 1:length(private$level_ind_)) +
                      scale_y_continuous(breaks = 1:length(private$level_ind_)) +
                      facet_wrap(~ .data$Var3) +
