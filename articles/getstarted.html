@@ -138,6 +138,10 @@ At first, we have to initialize the adaptive discrete smoothing model with a val
 <code class="sourceCode R"><span class="va">mse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">y</span> <span class="op">-</span> <span class="va">model</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">data</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">mse</span><span class="op">)</span>
 <span class="co">#&gt; [1] 0.9912502</span></code></pre></div>
+<p>One can easily take a look at the estimated weights via the <code>ADS$heatmap()</code> method</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">heatmap</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<p><img src="getstarted_files/figure-html/unnamed-chunk-6-1.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
   </div>
 
