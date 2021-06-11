@@ -25,5 +25,8 @@ Imports:
     ggplot2,
     rlang
 Suggests: 
-    testthat (>= 3.0.0), patrick, glmnet
+    testthat (>= 3.0.0),
+    patrick,
+    glmnet,
+    covr
 Config/testthat/edition: 3
