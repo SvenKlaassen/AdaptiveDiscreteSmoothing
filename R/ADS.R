@@ -1,221 +1,249 @@
-#' Adaptive Discrete Smoothing Algorithm
+#' @title ADS class
 #'
-#' @param df A `data.frame` containing the covariates,target variable and a factor for the individuum.
-#' @param target Name of the target column.
-#' @param individ Name of the individuum column.
-#' @param learner The specified learner.
-#' @param delta Weighting of the distance.
-#' @param gamma Weighting of the distance.
-#' @param iterations Number of iteration
-#' @param W_start The specified starting weights.
-#' @param calc_dist The distance function.
-#' @param kernel The kernel used in the distance function.
-#' @param parallel Parallel execution
-#' @param ... Additional arguments.
-#'
-#' @return An S3 object of class `ADS` with components
-#' * `learnerlist` A list of the estimated learners.
-#' * `weight_path` An array containing the different weight matrices.
-#' * `fitted.values` The corresponding predictions.
-#' * `level_ind` A vector containing the indications of the levels (of the individuals.)
-#' * `task_list` A list containing the `mlr3` tasks.
-#' * `fit_list` A list of the fits corresponding to the indiviuals.
-#' * `input` A list of important inputs (the name of the column of the individuals.)
-#'
-#' @seealso `predict.ADS`, `autoplot.ADS`
-#' @export
-#'
-#' @examples
-#' #create data
-#' n <- 200; N <- 10; p <- 3
-#' X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
-#' ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
-#'
-#' #create 2 different types
-#' Y <- X%*%rep(1,p) * (as.numeric(ind) <= N/2) + rnorm(n*N,0,1)
-#'
-#' data <- data.frame(X,"y" = Y, "ind" = ind)
-#'
-#' model <- ADS(df = data,target = "y",individ = "ind")
+#' @description
+#' Base class for Adaptive discrete smoothing.
 #'
 #'
+#' @format [R6::R6Class] object.
 #'
+#' @family ADS
+ADS <- R6Class("ADS",
+               active = list(
+               ),
+               public = list(
+                 #' @description
+                 #' Initialize a ADS Class object.
+                 #'
+                 #' @param data (`data.frame()`) \cr
+                 #' Data.frame containing the target variable, the covariates and a column with the corresponding individuals.
+                 #'
+                 #' @param target (`character(1)`) \cr
+                 #' Name of the target variable.
+                 #'
+                 #' @param individ (`character(1)`) \cr
+                 #' Name of the column with the individuals. Column has to be a factor.
+                 #'
+                 #' @param learner (named `list()`) \cr
+                 #' The machine learners from the `mlr3`-package.
+                 #'
+                 #' @param delta (`numeric()`) \cr
+                 #' Parameter for the loss function
+                 #'
+                 #' @param gamma (`gamma()`) \cr
+                 #' Parameter for the loss function
+                 #'
+                 #' @param iterations (`integer(1)`) \cr
+                 #' Number of iterations.
+                 #'
+                 #' @param W_start (`matrix()`) \cr
+                 #' Starting weights. Default is the identity matrix.
+                 #'
+                 #' @param calc_dist (`function()`) \cr
+                 #' A function to calculate the distance between different models.
+                 initialize = function(data,
+                                       target,
+                                       individ,
+                                       learner,
+                                       delta = 0.7,
+                                       gamma = 1,
+                                       iterations = 2,
+                                       W_start = NULL,
+                                       calc_dist = calc_dist_default){
+                   # check data
+                   assertDataFrame(data,any.missing = FALSE)
+                   assertCharacter(target, min.len = 1,max.len = 1)
+                   assertChoice(target,names(data))
+                   assertCharacter(individ, min.len = 1,max.len = 1)
+                   assertChoice(individ,names(data))
+                   assertFactor(data[,individ])
 
+                   private$data_ = data
+                   private$target_ = target
+                   private$ind_ = data[,individ]
+                   private$individ_ = individ
 
-ADS <- function(df,
-                target,
-                individ,
-                learner = mlr3::mlr_learners$get("regr.lm"),
-                delta = 0.7,
-                gamma = 1,
-                iterations = 2,
-                W_start = NULL,
-                calc_dist = calc_dist_default,
-                kernel = "gaussian",
-                parallel = F,...) {
+                   # check learner
+                   assert(check_character(learner, max.len = 1),
+                          check_class(learner, "Learner"))
+                   assertTRUE(learner$task_type == "regr")
 
-  # Checking Arguments ####
-  checkmate::assertDataFrame(df,any.missing = FALSE)
-  checkmate::assertCharacter(target, min.len = 1,max.len = 1)
-  checkmate::assertCharacter(individ, min.len = 1,max.len = 1)
-  checkmate::assertNumeric(delta,lower = 0,upper = 1)
-  if (length(delta) == 1){
-    delta <- rep(delta,iterations)
-  } else {
-    checkmate::assertTRUE(length(delta) == iterations)
-  }
-  checkmate::assertNumeric(gamma,lower = 0)
-  if (length(gamma) == 1){
-    gamma <- rep(gamma,iterations)
-  } else {
-    checkmate::assertTRUE(length(gamma) == iterations)
-  }
+                   private$learner_ = learner$clone(deep = TRUE)
 
-  #number of individuals
-  ind <- df[,individ]
-  checkmate::assertFactor(ind)
-  level_vec <- levels(ind)
-  N <- nlevels(ind)
+                   # check other parameters
+                   assertIntegerish(iterations, lower = 1)
+                   assertNumeric(delta,lower = 0)
+                   if (length(delta) == 1){
+                     delta <- rep(delta,iterations)
+                   } else {
+                     checkmate::assertTRUE(length(delta) == iterations)
+                   }
+                   assertNumeric(gamma,lower = 0)
+                   if (length(gamma) == 1){
+                     gamma <- rep(gamma,iterations)
+                   } else {
+                     checkmate::assertTRUE(length(gamma) == iterations)
+                   }
 
-  #vector of all observations and the corresponding number of the individual
-  ind_index <- as.integer(1:N)[ind]
-  #number of observations
-  n <- dim(df)[1]
+                   private$iterations_ = iterations
+                   private$delta_ = delta
+                   private$gamma_ = gamma
 
-  #construct a path for the weight matrix
-  W_path <- array(NaN, c(N,N,iterations+1))
-  if (all(is.null(W_start))) {
-    W_path[,,1] <- diag(N) #weight matrix for first stage
-  } else {
-    checkmate::assertMatrix(W_start, nrows = N, ncols = N)
-    W_path[,,1] <- W_start
-  }
-  #enable parallel processing
-  if (parallel == T){
-    future::plan(future::multiprocess)
-  }
+                   #check W_start
+                   if (!is.null(W_start)){
+                     assertMatrix(W_start, nrows = nlevels(data$individ), ncols = nlevels(data$individ))
+                   }
 
-  #start iterations
-  for (it in 1:iterations){
-    #list of tasks
-    task_list <- future.apply::future_lapply(1:N, function(i) {
-      data <-  dplyr::mutate(dplyr::select(df,-dplyr::all_of(c(individ))),
-                             weight_ADS =  sapply(ind_index, function(j) W_path[i,j,it]))
-      task <- mlr3::TaskRegr$new(id = level_vec[i], backend = data, target = target)
-      #change role of weight
-      #task$set_col_role("weight_ADS","weight")
-      task$col_roles$feature <- task$col_roles$feature[-length(task$col_roles$feature)]
-      task$col_roles$weight <- "weight_ADS"
-      task
-    },future.seed = T)
-    #list of learners (with training)
-    learner_list <- future.apply::future_lapply(1:N, function(i) {
-      temp_learner <- learner$clone()
-      temp_learner$train(task_list[[i]])
-    },future.seed = T)
-    #disable parallel processing
-    if (parallel == T){
-      future::plan(future::sequential)
-    }
+                   private$W_start_ = W_start
 
-    #adjust weight matrix
-    W_path[,,it + 1] <- delta[it]*sapply(1:N, function(i) {
-      sapply(1:N,function(j) {
-        calc_dist(model_1 = learner_list[[i]],model_2 = learner_list[[j]],
-                  gamma = gamma[it], task_list=task_list, kernel = kernel)
-      })
-    })
+                   #check distance funcitons
+                   assertFunction(calc_dist_default, args = c("model_1","model_2","task_list","gamma"))
 
-    #set diag weight to 1
-    diag(W_path[,,it + 1]) <- 1
-  }
+                   private$calc_dist_ = calc_dist
+                 },
+                 #' @description
+                 #' Estimate ADS models.
+                 #'
+                 #' @param store_predictions (`logical(1)`) \cr
+                 #' Indicates whether the predictions for the nuisance functions should be
+                 #' stored in field `predictions`. Default is `FALSE`.
+                 #'
+                 #' @return self
+                 fit = function(store_predictions = FALSE){
+                   level_vec = levels(private$ind_)
+                   N = nlevels(private$ind_)
+                   ind_index <- as.integer(1:N)[private$ind_]
 
-  #fitted values
-  fit_list <- lapply(1:N, function(i) {
-    learner_list[[i]]$predict(task_list[[i]], row_ids = (1:n)[ind_index == i])
-  })
+                   #construct a path for the weight matrix
+                   W_path <- array(NaN, c(N,N,private$iterations_+1))
+                   if (all(is.null(private$W_start))) {
+                     W_path[,,1] <- diag(N) #weight matrix for first stage
+                   } else {
+                     W_path[,,1] <- W_start
+                   }
 
-  #vector of fitted values
-  fit <- rep(NA,n)
-  invisible(sapply(1:N, function(i) fit[ind_index == i] <<- fit_list[[i]]$response))
-  names(fit) <- 1:n
-  input <- list("individ" = individ)
-  results <- list("learner_list" = learner_list,
-                  "Weight_path" = W_path,
-                  "fitted.values" = fit,
-                  "level_ind" = level_vec,
-                  "task_list" = task_list,
-                  "fit_list" = fit_list,
-                  "input" = input)
-  class(results) <- "ADS"
-  return(results)
-}
+                   #start iterations
+                   for (it in 1:private$iterations_){
+                     #list of tasks
+                     task_list <- lapply(1:N, function(i) {
+                       data <- private$data_[,!(names(private$data_) == private$individ_)]
+                       data$weight_ADS <- vapply(ind_index, function(j) W_path[i,j,it], FUN.VALUE = numeric(1))
+                       task <- TaskRegr$new(id = level_vec[i], backend = data, target = private$target_)
+                       #change role of weight
+                       #task$set_col_role("weight_ADS","weight")
+                       task$col_roles$feature <- task$col_roles$feature[-length(task$col_roles$feature)]
+                       task$col_roles$weight <- "weight_ADS"
+                       task
+                     })
+                     #list of learners (with training)
+                     learner_list <- lapply(1:N, function(i) {
+                       temp_learner <- private$learner_$clone(deep = TRUE)
+                       temp_learner$train(task_list[[i]])
+                     })
+                     #adjust weight matrix
+                     W_path[,,it + 1] <- private$delta_[it]*sapply(1:N, function(i) {
+                       sapply(1:N,function(j) {
+                         dist <- private$calc_dist_(model_1 = learner_list[[i]],model_2 = learner_list[[j]],
+                                                    gamma = private$gamma_[it], task_list=task_list)
+                         assertNumber(dist)
+                         dist
+                       })
+                     })
+                     #set diag weight to 1
+                     diag(W_path[,,it + 1]) <- 1
+                   }
+                   private$W_path_ <- W_path
+                   private$learner_list_ <- learner_list
+                   private$task_list_ <- task_list
+                   private$level_ind_ <- level_vec
 
-#' Predict Method for ADS object.
-#'
-#' @param object ADS object.
-#' @param newdata New dataframe.
-#' @param ... Additional arguments
-#'
-#' @return A vector containig the predicted values.
-#' @export
-#'
-predict.ADS <- function(object,
-                        newdata,
-                        ...){
-  checkmate::assertClass(object, "ADS")
+                   if (store_predictions){
+                     #fitted values
+                     fit_list <- lapply(1:N, function(i) {
+                       learner_list[[i]]$predict(task_list[[i]], row_ids = (1:n)[ind_index == i])
+                     })
+                     #vector of fitted values
+                     private$predictions <- rep(NA,n)
+                     invisible(sapply(1:N, function(i) private$predictions[ind_index == i] <<- fit_list[[i]]$response))
+                     names(private$predictions) <- 1:n
+                   }
 
-  newdata[,object$input$individ] <- as.factor(newdata[,object$input$individ])
-  newdata <- dplyr::mutate(newdata,"weight_ADS" = 1)
-  #split newdata into lists based on individual
-  newdata_list <-  split(dplyr::select(as.data.frame(newdata),-dplyr::all_of(c(object$input$individ))),
-                         f = newdata[,object$input$individ])
+                   invisible(self)
+                 },
+                 #' @description
+                 #' Predict ADS models on new data.
+                 #'
+                 #' @param newdata (`data.frame()`) \cr
+                 #' Predicts the model on new data. Has to be a data.frame with the same columns as in the trained model.
+                 #'
+                 #' @return A vector containig the predicted values.
+                 predict = function(newdata){
+                   assertDataFrame(newdata,any.missing = FALSE)
+                   assertSubset(names(private$data_)[names(private$data_) != private$target_],names(newdata))
+                   assertFactor(newdata[,private$individ_])
 
-  #predict values for each model
-  fit_list <- lapply(levels(newdata[,object$input$individ]), function(level) {
-    i <- match(level,object$level_ind)
-    j <- match(level,levels(newdata[,object$input$individ]))
-    predict(object = object$learner_list[[i]], newdata = newdata_list[[j]])
-  })
+                   newdata$weight_ADS = 1
+                   #split newdata into lists based on individual
+                   newdata[,!(names(newdata) == private$individ_)]
+                   newdata_list <-  split(newdata[,!(names(newdata) == private$individ_)],
+                                          f = newdata[,private$individ_])
+                   #predict values for each model
+                   fit_list <- lapply(levels(newdata[,private$individ_]), function(level) {
+                     i <- match(level,private$level_ind_)
+                     j <- match(level,levels(newdata[,private$individ_]))
+                     predict(object = private$learner_list_[[i]], newdata = newdata_list[[j]])
+                   })
+                   #reverse the split to make the vector compatible with newdata
+                   fit <- unsplit(fit_list, f = newdata[,private$individ_])
+                   names(fit) <- 1:dim(newdata)[1]
+                   return(fit)
+                 },
+                 #' @description
+                 #' Plot the used weights as a heatmap.
+                 #'
+                 #' @param iterations (`integer()`) \cr
+                 #' Steps to plot the weights for. Defaults to all iterations.
+                 #'
+                 #' @return list
+                 heatmap = function(iterations = NULL){
+                   if (is.null(iterations)){
+                     iterations <- seq_len(private$iterations_)
+                   }
+                   assertSubset(iterations,seq_len(iterations_))
+                   df <- reshape2::melt(private$W_path_[,,iterations])
+                   df$Var3 <- rep(iterations,each = nlevels(private$ind_)^2)
+                   heatmap <- ggplot(df, aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
+                     geom_tile() +
+                     xlab(label = "Covariates") +
+                     ylab(label = "Covariates") +
+                     scale_x_continuous(breaks = 1:length(private$level_ind_)) +
+                     scale_y_continuous(breaks = 1:length(private$level_ind_)) +
+                     facet_wrap(~ .data$Var3) +
+                     scale_fill_gradient(name = "Weight",low = "#FFFFFF",high = "#012345") +
+                     theme_bw() +
+                     theme(strip.placement = "outside",
+                                    plot.title = element_text(hjust = 0.5),
+                                    strip.background = element_rect(fill = "#EEEEEE", color = "#FFFFFF")) +
+                     ggtitle(label = "Weight Matrix") +
+                     theme(legend.position="bottom")
+                   return(heatmap)
 
-  #reverse the split to make the vector compatible with newdata
-  fit <- unsplit(fit_list, f = newdata[,object$input$individ])
-  names(fit) <- 1:dim(newdata)[1]
-
-  results <- list("fit" = fit)
-  return(results)
-}
-
-
-#' Plot a heatmap of the weight matrix.
-#'
-#'
-#' @param object `ADS` object.
-#' @param iterations Iterations of the weightmatrix to plot (1 equals the input matrix, default is diagonal.)
-#'
-#' @return A `ggplot` object with a heatmap.
-#'
-#' @export
-#' @importFrom ggplot2 autoplot
-#'
-autoplot.ADS <- function(object, iterations = 1:2){
-  df <- reshape2::melt(object$Weight_path[,,iterations])
-  heatmap <- ggplot2::ggplot(df, ggplot2::aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
-    ggplot2::geom_tile() +
-    ggplot2::xlab(label = "Covariates") +
-    ggplot2::ylab(label = "Covariates") +
-    ggplot2::scale_x_continuous(breaks = 1:length(object$level_ind)) +
-    ggplot2::scale_y_continuous(breaks = 1:length(object$level_ind)) +
-    ggplot2::facet_wrap(~ .data$Var3) +
-    ggplot2::scale_fill_gradient(name = "Weight",low = "#FFFFFF",high = "#012345") +
-    ggplot2::theme_bw() +
-    ggplot2::theme(strip.placement = "outside",
-          plot.title = ggplot2::element_text(hjust = 0.5),
-          strip.background = ggplot2::element_rect(fill = "#EEEEEE", color = "#FFFFFF")) +
-    ggplot2::ggtitle(label = "Weight Matrix") +
-    ggplot2::theme(legend.position="bottom")
-  return(heatmap)
-}
-
-
-
+                 }
+               ),
+               private = list(
+                 data_ = NULL,
+                 target_ = NULL,
+                 ind_ = NULL,
+                 individ_ = NULL,
+                 W_start_ = NULL,
+                 learner_ = NULL,
+                 delta_ = NULL,
+                 gamma_ = NULL,
+                 iterations_ = NULL,
+                 calc_dist_ = NULL,
+                 predictions = NULL,
+                 W_path_ = NULL,
+                 learner_list_ = NULL,
+                 task_list_ = NULL,
+                 level_ind_ = NULL
+               )
+)
