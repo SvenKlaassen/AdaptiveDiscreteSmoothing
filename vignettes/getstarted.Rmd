@@ -67,6 +67,9 @@ Finally, we can predict new values by using the `ADS$predict()` method.
 mse <- mean((data$y - model$predict(newdata = data))^2)
 print(mse)
 ```
-
+One can easily take a look at the estimated weights via the `ADS$heatmap()` method
+```{r}
+model$heatmap()
+```
 
 
