@@ -7,6 +7,7 @@
 
 [![R-CMD-check](https://github.com/SvenKlaassen/AdaptiveDiscreteSmoothing/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/SvenKlaassen/AdaptiveDiscreteSmoothing/actions/workflows/check-standard.yaml)
 [![test-coverage](https://github.com/SvenKlaassen/AdaptiveDiscreteSmoothing/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/SvenKlaassen/AdaptiveDiscreteSmoothing/actions/workflows/test-coverage.yaml)
+[![CodeFactor](https://www.codefactor.io/repository/github/svenklaassen/adaptivediscretesmoothing/badge)](https://www.codefactor.io/repository/github/svenklaassen/adaptivediscretesmoothing)
 <!-- badges: end -->
 
 The goal of AdaptiveDiscreteSmoothing is to …
