@@ -25,5 +25,11 @@ Imports:
     ggplot2,
     rlang
 Suggests: 
-    testthat (>= 3.0.0), patrick, glmnet
+    testthat (>= 3.0.0),
+    patrick,
+    glmnet,
+    covr,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
+VignetteBuilder: knitr
