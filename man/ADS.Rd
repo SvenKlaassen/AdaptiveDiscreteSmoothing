@@ -2,79 +2,155 @@
 % Please edit documentation in R/ADS.R
 \name{ADS}
 \alias{ADS}
-\title{Adaptive Discrete Smoothing Algorithm}
-\usage{
-ADS(
-  df,
+\title{ADS class}
+\format{
+\link[R6:R6Class]{R6::R6Class} object.
+}
+\description{
+Base class for Adaptive discrete smoothing.
+}
+\concept{ADS}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{ADS$new()}}
+\item \href{#method-fit}{\code{ADS$fit()}}
+\item \href{#method-predict}{\code{ADS$predict()}}
+\item \href{#method-heatmap}{\code{ADS$heatmap()}}
+\item \href{#method-clone}{\code{ADS$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+Initialize a ADS Class object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$new(
+  data,
   target,
   individ,
-  learner = mlr3::mlr_learners$get("regr.lm"),
+  learner,
   delta = 0.7,
   gamma = 1,
   iterations = 2,
   W_start = NULL,
-  calc_dist = calc_dist_default,
-  kernel = "gaussian",
-  parallel = F,
-  ...
-)
+  calc_dist = calc_dist_default
+)}\if{html}{\out{</div>}}
 }
-\arguments{
-\item{df}{A \code{data.frame} containing the covariates,target variable and a factor for the individuum.}
 
-\item{target}{Name of the target column.}
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data}}{(\code{data.frame()}) \cr
+Data.frame containing the target variable, the covariates and a column with the corresponding individuals.}
 
-\item{individ}{Name of the individuum column.}
+\item{\code{target}}{(\code{character(1)}) \cr
+Name of the target variable.}
 
-\item{learner}{The specified learner.}
+\item{\code{individ}}{(\code{character(1)}) \cr
+Name of the column with the individuals. Column has to be a factor.}
 
-\item{delta}{Weighting of the distance.}
+\item{\code{learner}}{(named \code{list()}) \cr
+The machine learners from the \code{mlr3}-package.}
 
-\item{gamma}{Weighting of the distance.}
+\item{\code{delta}}{(\code{numeric()}) \cr
+Parameter for the loss function}
 
-\item{iterations}{Number of iteration}
+\item{\code{gamma}}{(\code{gamma()}) \cr
+Parameter for the loss function}
 
-\item{W_start}{The specified starting weights.}
+\item{\code{iterations}}{(\code{integer(1)}) \cr
+Number of iterations.}
 
-\item{calc_dist}{The distance function.}
+\item{\code{W_start}}{(\code{matrix()}) \cr
+Starting weights. Default is the identity matrix.}
 
-\item{kernel}{The kernel used in the distance function.}
-
-\item{parallel}{Parallel execution}
-
-\item{...}{Additional arguments.}
+\item{\code{calc_dist}}{(\verb{function()}) \cr
+A function to calculate the distance between different models.}
 }
-\value{
-An S3 object of class \code{ADS} with components
-\itemize{
-\item \code{learnerlist} A list of the estimated learners.
-\item \code{weight_path} An array containing the different weight matrices.
-\item \code{fitted.values} The corresponding predictions.
-\item \code{level_ind} A vector containing the indications of the levels (of the individuals.)
-\item \code{task_list} A list containing the \code{mlr3} tasks.
-\item \code{fit_list} A list of the fits corresponding to the indiviuals.
-\item \code{input} A list of important inputs (the name of the column of the individuals.)
+\if{html}{\out{</div>}}
 }
 }
-\description{
-Adaptive Discrete Smoothing Algorithm
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-fit}{}}}
+\subsection{Method \code{fit()}}{
+Estimate ADS models.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$fit(store_predictions = FALSE)}\if{html}{\out{</div>}}
 }
-\examples{
-#create data
-n <- 200; N <- 10; p <- 3
-X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
-ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
 
-#create 2 different types
-Y <- X\%*\%rep(1,p) * (as.numeric(ind) <= N/2) + rnorm(n*N,0,1)
-
-data <- data.frame(X,"y" = Y, "ind" = ind)
-
-model <- ADS(df = data,target = "y",individ = "ind")
-
-
-
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{store_predictions}}{(\code{logical(1)}) \cr
+Indicates whether the predictions for the nuisance functions should be
+stored in field \code{predictions}. Default is \code{FALSE}.}
 }
-\seealso{
-\code{predict.ADS}, \code{autoplot.ADS}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+self
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-predict}{}}}
+\subsection{Method \code{predict()}}{
+Predict ADS models on new data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$predict(newdata)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{newdata}}{(\code{data.frame()}) \cr
+Predicts the model on new data. Has to be a data.frame with the same columns as in the trained model.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A vector containig the predicted values.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-heatmap"></a>}}
+\if{latex}{\out{\hypertarget{method-heatmap}{}}}
+\subsection{Method \code{heatmap()}}{
+Plot the used weights as a heatmap.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$heatmap(iterations = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{iterations}}{(\code{integer()}) \cr
+Steps to plot the weights for. Defaults to all iterations.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+list
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }
