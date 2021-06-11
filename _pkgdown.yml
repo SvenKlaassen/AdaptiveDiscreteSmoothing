@@ -10,7 +10,36 @@ template:
   params:
     bootswatch: journal
 
+toc:
+  depth: 3
+
 navbar:
   structure:
     left:  [home, getstarted, reference, articles]
     right: [github]
+  components:
+    getstarted:
+      text: Get started
+      icon: fa-solid fa-rocket
+      href: articles/getstarted.html
+    reference:
+      text: Reference
+      icon: fa-file-alt
+      href: reference/index.html
+    articles:
+      text: Articles
+      icon: fa-solid fa-book
+      menu:
+        - text: Installing AdaptiveDiscreteSmoothing
+          href: articles/install.html
+        - text: Introduction to Adaptive Discrete Smoothing
+          href: articles/intro_ads.html
+
+
+reference:
+  - title: Adaptive Discrete Smothing Models
+    contents:
+      - ADS
+  - title: Distance Functions
+    contents:
+      - calc_dist_default

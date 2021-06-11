@@ -7,6 +7,8 @@
 #' @format [R6::R6Class] object.
 #'
 #' @family ADS
+#'
+#' @export
 ADS <- R6Class("ADS",
                active = list(
                ),
@@ -208,13 +210,13 @@ ADS <- R6Class("ADS",
                    if (is.null(iterations)){
                      iterations <- seq_len(private$iterations_)
                    }
-                   assertSubset(iterations,seq_len(iterations_))
+                   assertSubset(iterations,seq_len(private$iterations_))
                    df <- reshape2::melt(private$W_path_[,,iterations])
                    df$Var3 <- rep(iterations,each = nlevels(private$ind_)^2)
                    heatmap <- ggplot(df, aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
                      geom_tile() +
-                     xlab(label = "Covariates") +
-                     ylab(label = "Covariates") +
+                     xlab(label = "Individual") +
+                     ylab(label = "Individual") +
                      scale_x_continuous(breaks = 1:length(private$level_ind_)) +
                      scale_y_continuous(breaks = 1:length(private$level_ind_)) +
                      facet_wrap(~ .data$Var3) +

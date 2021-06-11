@@ -1,12 +1,13 @@
 Package: AdaptiveDiscreteSmoothing
-Title: What the Package Does (One Line, Title Case)
+Title: Adaptive Discrete Smoothing
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Sven",
            family = "Klaassen",
            role = c("aut", "cre"),
            email = "sven.klaassen@uni-hamburg.de")
-Description: What the package does (one paragraph).
+Description: Implementation of the adaptive discrete smoothing framework of
+    Chernozhukov et al. (2018) <https://arxiv.org/abs/1912.12867>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
