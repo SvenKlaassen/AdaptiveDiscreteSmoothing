@@ -1,0 +1,16 @@
+destination: docs
+
+home:
+  title: Adaptive Discrete Smoothing
+  links:
+  - text: Download
+    href: https://github.com/SvenKlaassen/AdaptiveDiscreteSmoothing/
+
+template:
+  params:
+    bootswatch: journal
+
+navbar:
+  structure:
+    left:  [home, getstarted, reference, articles]
+    right: [github]
