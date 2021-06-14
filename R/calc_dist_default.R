@@ -18,7 +18,7 @@ calc_dist_default <- function(model_1, model_2, task_list,...){
   } else if (class(model_1)[1] == "LearnerRegrCVGlmnet") {
     dist <- sum((coef(model_1$model, s = "lambda.min")-coef(model_2$model, s = "lambda.min"))^2)
   } else {
-    dist <- mean((model_1$predict(task_list[[1]])$response-model_2$predict(task_list[[1]])$response)^2)
+    dist <- mean((model_1$predict(task_list[[1]])$response - model_2$predict(task_list[[1]])$response)^2)
   }
   return(dist)
 }

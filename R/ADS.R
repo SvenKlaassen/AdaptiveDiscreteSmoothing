@@ -128,7 +128,7 @@ ADS <- R6Class("ADS",
                    data_info = paste0("Outcome variable: ", private$target_, "\n",
                                       "Individuals: ", private$individ_, "\n",
                                       "Covariates: ", paste0(private$covariates_, collapse = ","), "\n",
-                                      "Learners:", paste0(learner$id)
+                                      "Learners:", paste0(private$learner$id)
                    )
                    cat(header, "\n",
                        data_info)
@@ -151,10 +151,10 @@ ADS <- R6Class("ADS",
 
                    #construct a path for the weight matrix
                    W_path <- array(NaN, c(N,N,private$iterations_+1))
-                   if (all(is.null(private$W_start))) {
+                   if (all(is.null(private$W_start_))) {
                      W_path[,,1] <- diag(N) #weight matrix for first stage
                    } else {
-                     W_path[,,1] <- W_start
+                     W_path[,,1] <- private$W_start_
                    }
 
                    #start iterations
