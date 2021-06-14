@@ -92,7 +92,7 @@ ADS <- R6Class("ADS",
 
                    #check W_start
                    if (!is.null(W_start)){
-                     assertMatrix(W_start, nrows = nlevels(data$individ), ncols = nlevels(data$individ))
+                     assertMatrix(W_start, nrows = nlevels(private$ind_), ncols = nlevels(private$ind_))
                    }
 
                    private$W_start_ = W_start
@@ -114,6 +114,7 @@ ADS <- R6Class("ADS",
                    level_vec = levels(private$ind_)
                    N = nlevels(private$ind_)
                    ind_index <- as.integer(1:N)[private$ind_]
+                   n = length(private$ind_)
 
                    #construct a path for the weight matrix
                    W_path <- array(NaN, c(N,N,private$iterations_+1))
