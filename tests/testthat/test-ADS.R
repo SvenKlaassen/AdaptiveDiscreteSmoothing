@@ -13,7 +13,7 @@ for (learner in learnerlist){
     .cases = test_cases,
     {
       #create data
-      n <- 200; N <- 10; p <- 3
+      n <- 20; N <- 5; p <- 2
       X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
       Y <- X%*%rep(1,p) + rnorm(n*N,0,1)
       ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
@@ -25,8 +25,14 @@ for (learner in learnerlist){
                        learner = learner,
                        calc_weight = list("fun" = calc_weight_default,
                                           "params" = list("kernel" = kernel)))
-      model$fit(store_predictions = TRUE)
+
+      #check acitve fields
       expect_output(model$print())
+      expect_equal(model$data,data)
+      expect_equal(model$learner$id,learner$id)
+
+      #check fiting
+      model$fit(store_predictions = TRUE)
       fit_1 <- model$predict(newdata = data)
 
       model_2 <- ADS_function(df = data,
@@ -59,7 +65,7 @@ for (learner in learnerlist){
     .cases = test_cases,
     {
       #create data
-      n <- 200; N <- 10; p <- 3
+      n <- 20; N <- 5; p <- 2
       X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
       Y <- X%*%rep(1,p) + rnorm(n*N,0,1)
       ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
@@ -73,8 +79,13 @@ for (learner in learnerlist){
                        iterations = iterations,
                        learner = learner,
                        W_start = diag(N))
+      #check acitve fields
+      expect_output(model$print())
+      expect_equal(model$data,data)
+      expect_equal(model$learner$id,learner$id)
+
+      #check fiting
       model$fit(store_predictions = TRUE)
-      #expect_output(model$print())
       fit_1 <- model$predict(newdata = data)
 
       model_2 <- ADS_function(df = data,

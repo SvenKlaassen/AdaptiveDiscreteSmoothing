@@ -10,6 +10,17 @@
 Base class for Adaptive discrete smoothing.
 }
 \concept{ADS}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{data}}{(\code{data.frame()})\cr
+Data frame.}
+
+\item{\code{learner}}{(\code{\link[mlr3:LearnerRegr]{LearnerRegr}})\cr
+A learner.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -53,7 +64,7 @@ Name of the target variable.}
 \item{\code{individ}}{(\code{character(1)}) \cr
 Name of the column with the individuals. Column has to be a factor.}
 
-\item{\code{learner}}{(named \code{list()}) \cr
+\item{\code{learner}}{(\code{\link[mlr3:LearnerRegr]{LearnerRegr}}) \cr
 The machine learners from the \code{mlr3}-package.}
 
 \item{\code{delta}}{(\code{numeric()}) \cr

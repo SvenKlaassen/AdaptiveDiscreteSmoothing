@@ -11,7 +11,20 @@
 #' @export
 ADS <- R6Class("ADS",
                active = list(
+                 #' @field data (`data.frame()`)\cr
+                 #' Data frame.
+                 data = function(value) {
+                   if (missing(value)) return(private$data_)
+                   else stop("can't set field data")
+                 },
+                 #' @field learner ([`LearnerRegr`][mlr3::LearnerRegr])\cr
+                 #' A learner.
+                 learner = function(value) {
+                   if (missing(value)) return(private$learner_)
+                   else stop("can't set field learner")
+                 }
                ),
+
                public = list(
                  #' @description
                  #' Initialize a ADS Class object.
@@ -25,7 +38,7 @@ ADS <- R6Class("ADS",
                  #' @param individ (`character(1)`) \cr
                  #' Name of the column with the individuals. Column has to be a factor.
                  #'
-                 #' @param learner (named `list()`) \cr
+                 #' @param learner ([`LearnerRegr`][mlr3::LearnerRegr]) \cr
                  #' The machine learners from the `mlr3`-package.
                  #'
                  #' @param delta (`numeric()`) \cr
