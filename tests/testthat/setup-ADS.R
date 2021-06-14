@@ -95,9 +95,9 @@ ADS_function <- function(df,
   #start iterations
   for (it in 1:iterations){
     #list of tasks
-    task_list <- future.apply::future_lapply(1:N, function(i) {
+    task_list <- future.apply::future_lapply(seq_len(N), function(i) {
       data <-  dplyr::mutate(dplyr::select(df,-dplyr::all_of(c(individ))),
-                             weight_ADS =  sapply(ind_index, function(j) W_path[i,j,it]))
+                             weight_ADS =  vapply(ind_index, function(j) W_path[i,j,it], FUN.VALUE = numeric(1)))
       task <- mlr3::TaskRegr$new(id = level_vec[i], backend = data, target = target)
       #change role of weight
       #task$set_col_role("weight_ADS","weight")
@@ -106,7 +106,7 @@ ADS_function <- function(df,
       task
     },future.seed = T)
     #list of learners (with training)
-    learner_list <- future.apply::future_lapply(1:N, function(i) {
+    learner_list <- future.apply::future_lapply(seq_len(N), function(i) {
       temp_learner <- learner$clone()
       temp_learner$train(task_list[[i]])
     },future.seed = T)
@@ -116,26 +116,26 @@ ADS_function <- function(df,
     }
 
     #adjust weight matrix
-    W_path[,,it + 1] <- delta[it]*sapply(1:N, function(i) {
-      sapply(1:N,function(j) {
+    W_path[,,it + 1] <- delta[it]*vapply(seq_len(N), function(i) {
+      vapply(seq_len(N),function(j) {
         calc_dist(model_1 = learner_list[[i]],model_2 = learner_list[[j]],
                   gamma = gamma[it], task_list=task_list, kernel = kernel)
-      })
-    })
+      }, FUN.VALUE = numeric(1))
+    }, FUN.VALUE = numeric(N))
 
     #set diag weight to 1
     diag(W_path[,,it + 1]) <- 1
   }
 
   #fitted values
-  fit_list <- lapply(1:N, function(i) {
-    learner_list[[i]]$predict(task_list[[i]], row_ids = (1:n)[ind_index == i])
+  fit_list <- lapply(seq_len(N), function(i) {
+    learner_list[[i]]$predict(task_list[[i]], row_ids = seq_len(n)[ind_index == i])
   })
 
   #vector of fitted values
   fit <- rep(NA,n)
-  invisible(sapply(1:N, function(i) fit[ind_index == i] <<- fit_list[[i]]$response))
-  names(fit) <- 1:n
+  invisible(lapply(seq_len(N), function(i){fit[ind_index == i] <<- fit_list[[i]]$response}))
+  names(fit) <- seq_len(n)
   input <- list("individ" = individ)
   results <- list("learner_list" = learner_list,
                   "Weight_path" = W_path,
