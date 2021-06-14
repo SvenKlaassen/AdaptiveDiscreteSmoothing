@@ -5,7 +5,7 @@ test_cases <- expand.grid(
 test_cases["test_name"] = apply(test_cases, 1, paste, collapse = "_")
 
 learnerlist <- list(mlr_learners$get("regr.lm"),
-                    mlr_learners$get("regr.glmnet"),
+                    mlr_learners$get("regr.cv_glmnet"),
                     mlr_learners$get("regr.rpart"))
 
 for (learner in learnerlist){

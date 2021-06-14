@@ -42,6 +42,8 @@ ADS <- R6Class("ADS",
                  #'
                  #' @param calc_dist (`function()`) \cr
                  #' A function to calculate the distance between different models.
+                 #' @param calc_weight (`function()`) \cr
+                 #' A function to calculate scaled weight based on distance and gamma and delta.
                  initialize = function(data,
                                        target,
                                        individ,
@@ -50,7 +52,9 @@ ADS <- R6Class("ADS",
                                        gamma = 1,
                                        iterations = 2,
                                        W_start = NULL,
-                                       calc_dist = calc_dist_default){
+                                       calc_dist = calc_dist_default,
+                                       calc_weight = list("fun" = calc_weight_default,
+                                                          "params" = list("kernel" = "gaussian"))){
                    # check data
                    assertDataFrame(data,any.missing = FALSE)
                    assertCharacter(target, min.len = 1,max.len = 1)
@@ -97,10 +101,13 @@ ADS <- R6Class("ADS",
 
                    private$W_start_ = W_start
 
-                   #check distance funcitons
-                   assertFunction(calc_dist_default, args = c("model_1","model_2","task_list","gamma"))
+                   #check distance and weight funcitons
+                   assertFunction(calc_dist, args = c("model_1","model_2","task_list","gamma"))
+                   assertFunction(calc_weight$fun, args = c("dist", "delta", "gamma"))
+                   assertList(calc_weight$params,null.ok = TRUE)
 
                    private$calc_dist_ = calc_dist
+                   private$calc_weight_ = calc_weight
                  },
                  #' @description
                  #' Estimate ADS models.
@@ -143,12 +150,19 @@ ADS <- R6Class("ADS",
                        temp_learner$train(task_list[[i]])
                      })
                      #adjust weight matrix
-                     W_path[,,it + 1] <- private$delta_[it]*vapply(seq_len(N), function(i) {
+                     W_path[,,it + 1] <- vapply(seq_len(N), function(i) {
                        vapply(seq_len(N),function(j) {
-                         dist <- private$calc_dist_(model_1 = learner_list[[i]],model_2 = learner_list[[j]],
-                                                    gamma = private$gamma_[it], task_list=task_list)
+                         dist <- private$calc_dist_(model_1 = learner_list[[i]],
+                                                    model_2 = learner_list[[j]],
+                                                    task_list = task_list)
                          assertNumber(dist)
-                         dist
+                         weight <- do.call(private$calc_weight_$fun,
+                                           args = c(list(dist = dist,
+                                                         delta = private$delta_[it],
+                                                         gamma = private$gamma_[it]),
+                                                    private$calc_weight_$params))
+                         assertNumber(weight)
+                         weight
                        }, FUN.VALUE = numeric(1))
                      }, FUN.VALUE = numeric(N))
                      #set diag weight to 1
@@ -243,6 +257,7 @@ ADS <- R6Class("ADS",
                  gamma_ = NULL,
                  iterations_ = NULL,
                  calc_dist_ = NULL,
+                 calc_weight_ = NULL,
                  predictions = NULL,
                  W_path_ = NULL,
                  learner_list_ = NULL,

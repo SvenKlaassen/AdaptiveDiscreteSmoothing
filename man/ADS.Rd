@@ -35,7 +35,8 @@ Initialize a ADS Class object.
   gamma = 1,
   iterations = 2,
   W_start = NULL,
-  calc_dist = calc_dist_default
+  calc_dist = calc_dist_default,
+  calc_weight = calc_weight_default
 )}\if{html}{\out{</div>}}
 }
 
@@ -68,6 +69,9 @@ Starting weights. Default is the identity matrix.}
 
 \item{\code{calc_dist}}{(\verb{function()}) \cr
 A function to calculate the distance between different models.}
+
+\item{\code{calc_weight}}{(\verb{function()}) \cr
+A function to calculate scaled weight based on distance and gamma and delta.}
 }
 \if{html}{\out{</div>}}
 }

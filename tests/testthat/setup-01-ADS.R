@@ -48,6 +48,7 @@ ADS_function <- function(df,
                 iterations = 2,
                 W_start = NULL,
                 calc_dist = calc_dist_default,
+                calc_weight = calc_weight_default,
                 kernel = "gaussian",
                 parallel = F,...) {
 
@@ -118,8 +119,12 @@ ADS_function <- function(df,
     #adjust weight matrix
     W_path[,,it + 1] <- delta[it]*vapply(seq_len(N), function(i) {
       vapply(seq_len(N),function(j) {
-        calc_dist(model_1 = learner_list[[i]],model_2 = learner_list[[j]],
-                  gamma = gamma[it], task_list=task_list, kernel = kernel)
+        dist <- calc_dist(model_1 = learner_list[[i]],model_2 = learner_list[[j]],
+                          gamma = gamma[it], task_list=task_list, kernel = kernel)
+        weight <- calc_weight(dist = dist,
+                              delta = delta[it],
+                              gamma = gamma[it],
+                              kernel = kernel)
       }, FUN.VALUE = numeric(1))
     }, FUN.VALUE = numeric(N))
 
