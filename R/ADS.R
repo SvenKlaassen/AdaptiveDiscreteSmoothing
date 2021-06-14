@@ -92,7 +92,7 @@ ADS <- R6Class("ADS",
 
                    #check W_start
                    if (!is.null(W_start)){
-                     assertMatrix(W_start, nrows = nlevels(data$individ), ncols = nlevels(data$individ))
+                     assertMatrix(W_start, nrows = nlevels(private$ind_), ncols = nlevels(private$ind_))
                    }
 
                    private$W_start_ = W_start
@@ -114,6 +114,7 @@ ADS <- R6Class("ADS",
                    level_vec = levels(private$ind_)
                    N = nlevels(private$ind_)
                    ind_index <- as.integer(1:N)[private$ind_]
+                   n = length(private$ind_)
 
                    #construct a path for the weight matrix
                    W_path <- array(NaN, c(N,N,private$iterations_+1))
@@ -126,7 +127,7 @@ ADS <- R6Class("ADS",
                    #start iterations
                    for (it in 1:private$iterations_){
                      #list of tasks
-                     task_list <- lapply(1:N, function(i) {
+                     task_list <- lapply(seq_len(N), function(i) {
                        data <- private$data_[,!(names(private$data_) == private$individ_)]
                        data$weight_ADS <- vapply(ind_index, function(j) W_path[i,j,it], FUN.VALUE = numeric(1))
                        task <- TaskRegr$new(id = level_vec[i], backend = data, target = private$target_)
@@ -137,19 +138,19 @@ ADS <- R6Class("ADS",
                        task
                      })
                      #list of learners (with training)
-                     learner_list <- lapply(1:N, function(i) {
+                     learner_list <- lapply(seq_len(N), function(i) {
                        temp_learner <- private$learner_$clone(deep = TRUE)
                        temp_learner$train(task_list[[i]])
                      })
                      #adjust weight matrix
-                     W_path[,,it + 1] <- private$delta_[it]*sapply(1:N, function(i) {
-                       sapply(1:N,function(j) {
+                     W_path[,,it + 1] <- private$delta_[it]*vapply(seq_len(N), function(i) {
+                       vapply(seq_len(N),function(j) {
                          dist <- private$calc_dist_(model_1 = learner_list[[i]],model_2 = learner_list[[j]],
                                                     gamma = private$gamma_[it], task_list=task_list)
                          assertNumber(dist)
                          dist
-                       })
-                     })
+                       }, FUN.VALUE = numeric(1))
+                     }, FUN.VALUE = numeric(N))
                      #set diag weight to 1
                      diag(W_path[,,it + 1]) <- 1
                    }
@@ -160,13 +161,13 @@ ADS <- R6Class("ADS",
 
                    if (store_predictions){
                      #fitted values
-                     fit_list <- lapply(1:N, function(i) {
-                       learner_list[[i]]$predict(task_list[[i]], row_ids = (1:n)[ind_index == i])
+                     fit_list <- lapply(seq_len(N), function(i) {
+                       learner_list[[i]]$predict(task_list[[i]], row_ids = seq_len(n)[ind_index == i])
                      })
                      #vector of fitted values
                      private$predictions <- rep(NA,n)
-                     invisible(sapply(1:N, function(i) private$predictions[ind_index == i] <<- fit_list[[i]]$response))
-                     names(private$predictions) <- 1:n
+                     invisible(lapply(seq_len(N), function(i) {private$predictions[ind_index == i] <<- fit_list[[i]]$response}))
+                     names(private$predictions) <- seq_len(n)
                    }
 
                    invisible(self)
@@ -217,8 +218,8 @@ ADS <- R6Class("ADS",
                      geom_tile() +
                      xlab(label = "Individual") +
                      ylab(label = "Individual") +
-                     scale_x_continuous(breaks = 1:length(private$level_ind_)) +
-                     scale_y_continuous(breaks = 1:length(private$level_ind_)) +
+                     scale_x_continuous(breaks = seq_len(length(private$level_ind_))) +
+                     scale_y_continuous(breaks = seq_len(length(private$level_ind_))) +
                      facet_wrap(~ .data$Var3) +
                      scale_fill_gradient(name = "Weight",low = "#FFFFFF",high = "#012345") +
                      theme_bw() +

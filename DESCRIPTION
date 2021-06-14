@@ -29,6 +29,7 @@ Suggests:
     testthat (>= 3.0.0),
     patrick,
     glmnet,
+    rpart,
     covr,
     knitr,
     rmarkdown
