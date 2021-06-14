@@ -43,3 +43,4 @@ reference:
   - title: Distance Functions
     contents:
       - calc_dist_default
+      - calc_weight_default
