@@ -30,6 +30,8 @@ Suggests:
     rpart,
     covr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    future,
+    future.apply
 Config/testthat/edition: 3
 VignetteBuilder: knitr

@@ -70,6 +70,7 @@ ADS <- R6Class("ADS",
                    private$data_ = data
                    private$target_ = target
                    private$ind_ = data[,individ]
+                   private$covariates_ = names(data)[!(names(data) %in% c(target, individ))]
                    private$individ_ = individ
 
                    # check learner
@@ -116,6 +117,23 @@ ADS <- R6Class("ADS",
 
                    private$calc_dist_ = calc_dist
                    private$calc_weight_ = calc_weight
+                 },
+                 #' @description
+                 #' Print ADS objects.
+                 print = function(){
+                   class_name = class(self)[1]
+                   header = paste0(
+                     "================= ", class_name,
+                     " Object ==================\n")
+                   data_info = paste0("Outcome variable: ", private$target_, "\n",
+                                      "Individuals: ", private$individ_, "\n",
+                                      "Covariates: ", paste0(private$covariates_, collapse = ","), "\n",
+                                      "Learners:", paste0(learner$id)
+                   )
+                   cat(header, "\n",
+                       data_info)
+
+                   invisible(self)
                  },
                  #' @description
                  #' Estimate ADS models.
@@ -259,6 +277,7 @@ ADS <- R6Class("ADS",
                private = list(
                  data_ = NULL,
                  target_ = NULL,
+                 covariates_ = NULL,
                  ind_ = NULL,
                  individ_ = NULL,
                  W_start_ = NULL,
