@@ -3,7 +3,7 @@
 #' @param distance (`numeric(1)`) \cr
 #' A distance.
 #' @param delta (`numeric(1)`) \cr
-#' Scaling of the distance.
+#' Scaling of the distance (bandwidth of the kernel).
 #' @param gamma (`numeric(1)`) \cr
 #' Final scaling of the weight.
 #' @param kernel (`character(1)`) \cr

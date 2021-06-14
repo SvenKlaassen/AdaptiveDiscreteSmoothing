@@ -14,7 +14,7 @@
 #' A distance between the two models.
 #' @export
 #'
-calc_dist_default <- function(model_1,model_2,gamma = 1,task_list,...){
+calc_dist_default <- function(model_1, model_2, task_list,...){
   if (class(model_1)[1] == "LearnerRegrLM"){
     dist <- sum((model_1$model$coefficients-model_2$model$coefficients)^2)
   } else if (class(model_1)[1] == "LearnerRegrCVGlmnet") {

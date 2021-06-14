@@ -8,7 +8,7 @@ calc_weight_default(dist, delta = 0.7, gamma = 0.5, kernel = "gaussian", ...)
 }
 \arguments{
 \item{delta}{(\code{numeric(1)}) \cr
-Scaling of the distance.}
+Scaling of the distance (bandwidth of the kernel).}
 
 \item{gamma}{(\code{numeric(1)}) \cr
 Final scaling of the weight.}

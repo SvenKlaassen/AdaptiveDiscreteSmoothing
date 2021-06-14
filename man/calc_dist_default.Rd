@@ -4,7 +4,7 @@
 \alias{calc_dist_default}
 \title{Distance between models.}
 \usage{
-calc_dist_default(model_1, model_2, gamma = 1, task_list, ...)
+calc_dist_default(model_1, model_2, task_list, ...)
 }
 \arguments{
 \item{model_1}{(\code{\link[mlr3:LearnerRegr]{LearnerRegr}})\cr
@@ -13,13 +13,13 @@ First Model.}
 \item{model_2}{(\code{\link[mlr3:LearnerRegr]{LearnerRegr}})\cr
 Second Model.}
 
-\item{gamma}{(\code{numeric(1)})\cr
-Weighting of the distance.}
-
 \item{task_list}{(\code{\link[mlr3:TaskRegr]{TaskRegr}})\cr
 Task list.}
 
 \item{...}{Additional arguments}
+
+\item{gamma}{(\code{numeric(1)})\cr
+Weighting of the distance.}
 }
 \value{
 (\code{numeric(1)}) \cr
