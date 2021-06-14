@@ -11,6 +11,48 @@
 #' @export
 ADS <- R6Class("ADS",
                active = list(
+                 #' @field data (`data.frame()`)\cr
+                 #' Data frame.
+                 data = function(value) {
+                   if (missing(value)) return(private$data_)
+                   else stop("can't set field data")
+                 },
+                 #' @field learner ([`LearnerRegr`][mlr3::LearnerRegr])\cr
+                 #' A learner.
+                 learner = function(value) {
+                   if (missing(value)) return(private$learner_)
+                   else stop("can't set field learner")
+                 },
+                 #' @field task_list (`list()`)\cr
+                 #' A list of tasks.
+                 task_list = function(value) {
+                   if (missing(value)) return(private$task_list_)
+                   else stop("can't set field task_list")
+                 },
+                 #' @field learner_list (`list()`)\cr
+                 #' A list of learners.
+                 learner_list = function(value) {
+                   if (missing(value)) return(private$learner_list_)
+                   else stop("can't set field learner_list")
+                 },
+                 #' @field delta (`numeric()`)\cr
+                 #' A vector.
+                 delta = function(value) {
+                   if (missing(value)) return(private$delta_)
+                   else stop("can't set field delta")
+                 },
+                 #' @field gamma (`numeric()`)\cr
+                 #' A vector.
+                 gamma = function(value) {
+                 if (missing(value)) return(private$gamma_)
+                 else stop("can't set field gamma")
+                 },
+                 #' @field weight_path (`array()`)\cr
+                 #' An array.
+                 weight_path = function(value) {
+                   if (missing(value)) return(private$W_path_)
+                   else stop("can't set field weight_path")
+                 }
                ),
                public = list(
                  #' @description
@@ -25,7 +67,7 @@ ADS <- R6Class("ADS",
                  #' @param individ (`character(1)`) \cr
                  #' Name of the column with the individuals. Column has to be a factor.
                  #'
-                 #' @param learner (named `list()`) \cr
+                 #' @param learner ([`LearnerRegr`][mlr3::LearnerRegr]) \cr
                  #' The machine learners from the `mlr3`-package.
                  #'
                  #' @param delta (`numeric()`) \cr
@@ -128,7 +170,7 @@ ADS <- R6Class("ADS",
                    data_info = paste0("Outcome variable: ", private$target_, "\n",
                                       "Individuals: ", private$individ_, "\n",
                                       "Covariates: ", paste0(private$covariates_, collapse = ","), "\n",
-                                      "Learners:", paste0(private$learner$id)
+                                      "Learners:", paste0(class(private$learner_)[1])
                    )
                    cat(header, "\n",
                        data_info)
