@@ -14,6 +14,7 @@ Base class for Adaptive discrete smoothing.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{ADS$new()}}
+\item \href{#method-print}{\code{ADS$print()}}
 \item \href{#method-fit}{\code{ADS$fit()}}
 \item \href{#method-predict}{\code{ADS$predict()}}
 \item \href{#method-heatmap}{\code{ADS$heatmap()}}
@@ -35,7 +36,8 @@ Initialize a ADS Class object.
   gamma = 1,
   iterations = 2,
   W_start = NULL,
-  calc_dist = calc_dist_default
+  calc_dist = list(fun = calc_dist_default),
+  calc_weight = list(fun = calc_weight_default, params = list(kernel = "gaussian"))
 )}\if{html}{\out{</div>}}
 }
 
@@ -67,10 +69,31 @@ Number of iterations.}
 Starting weights. Default is the identity matrix.}
 
 \item{\code{calc_dist}}{(\verb{function()}) \cr
-A function to calculate the distance between different models.}
+A list. If not set to default a list with the following components:
+\itemize{
+\item \code{fun} A function of the form \verb{function(model_1,model_2,task_list,...)} to calculate the weights.
+\item \code{params} A list of the additional parameters used in \code{fun}.
+}}
+
+\item{\code{calc_weight}}{(\verb{function()}) \cr
+A list. If not set to default a list with the following components:
+\itemize{
+\item \code{fun} A function of the form \verb{function(dist, delta, gamma,...)} to calculate the weights.
+\item \code{params} A list of the additional parameters used in \code{fun}.
+}}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print ADS objects.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-fit"></a>}}

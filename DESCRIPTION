@@ -16,10 +16,7 @@ RoxygenNote: 7.1.1
 Imports: 
     checkmate,
     R6,
-    dplyr,
     evmix,
-    future,
-    future.apply,
     mlr3,
     mlr3learners,
     reshape2,
@@ -28,10 +25,13 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0),
     patrick,
+    dplyr,
     glmnet,
     rpart,
     covr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    future,
+    future.apply
 Config/testthat/edition: 3
 VignetteBuilder: knitr

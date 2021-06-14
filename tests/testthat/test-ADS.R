@@ -1,11 +1,11 @@
 test_cases <- expand.grid(
-  kernel =  c("gaussian"),
+  kernel =  c("gaussian","epa","unif","tri"),
   stringsAsFactors = FALSE)
 
 test_cases["test_name"] = apply(test_cases, 1, paste, collapse = "_")
 
 learnerlist <- list(mlr_learners$get("regr.lm"),
-                    mlr_learners$get("regr.glmnet"),
+                    mlr_learners$get("regr.cv_glmnet"),
                     mlr_learners$get("regr.rpart"))
 
 for (learner in learnerlist){
@@ -22,15 +22,18 @@ for (learner in learnerlist){
       model <- ADS$new(data = data,
                        target = "y",
                        individ = "ind",
-                       learner = learner)
+                       learner = learner,
+                       calc_weight = list("fun" = calc_weight_default,
+                                          "params" = list("kernel" = kernel)))
       model$fit(store_predictions = TRUE)
-
+      expect_silent(model)
       fit_1 <- model$predict(newdata = data)
 
       model_2 <- ADS_function(df = data,
                               target = "y",
                               individ = "ind",
-                              learner = learner)
+                              learner = learner,
+                              kernel = kernel)
       fit_2 <- predict_ADS(model_2, newdata = data)$fit
 
       #test heatmap
@@ -70,6 +73,7 @@ for (learner in learnerlist){
                                                         iterations = iterations,
                                                         learner = learner,
                                                         W_start = diag(N))
+                                       expect_silent(model)
                                        model$fit(store_predictions = TRUE)
 
                                        fit_1 <- model$predict(newdata = data)
