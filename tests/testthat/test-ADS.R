@@ -44,6 +44,8 @@ for (learner in learnerlist){
       model$fit(store_predictions = TRUE)
       expect_length(model$task_list,N)
       expect_length(model$learner_list,N)
+      expect_array(model$weight_path, d = 3)
+      expect_equal(dim(model$weight_path),c(N,N,iterations + 1))
 
       fit_1 <- model$predict(newdata = data)
 
@@ -104,6 +106,8 @@ for (learner in learnerlist){
       model$fit(store_predictions = TRUE)
       expect_length(model$task_list,N)
       expect_length(model$learner_list,N)
+      expect_array(model$weight_path, d = 3)
+      expect_equal(dim(model$weight_path),c(N,N,iterations + 1))
 
       fit_1 <- model$predict(newdata = data)
 

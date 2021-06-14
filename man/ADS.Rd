@@ -18,6 +18,21 @@ Data frame.}
 
 \item{\code{learner}}{(\code{\link[mlr3:LearnerRegr]{LearnerRegr}})\cr
 A learner.}
+
+\item{\code{task_list}}{(\code{list()})\cr
+A list of tasks.}
+
+\item{\code{learner_list}}{(\code{list()})\cr
+A list of learners.}
+
+\item{\code{delta}}{(\code{numeric()})\cr
+A vector.}
+
+\item{\code{gamma}}{(\code{numeric()})\cr
+A vector.}
+
+\item{\code{weight_path}}{(\code{array()})\cr
+An array.}
 }
 \if{html}{\out{</div>}}
 }

@@ -46,6 +46,12 @@ ADS <- R6Class("ADS",
                  gamma = function(value) {
                  if (missing(value)) return(private$gamma_)
                  else stop("can't set field gamma")
+                 },
+                 #' @field weight_path (`array()`)\cr
+                 #' An array.
+                 weight_path = function(value) {
+                   if (missing(value)) return(private$W_path_)
+                   else stop("can't set field weight_path")
                  }
                ),
                public = list(
