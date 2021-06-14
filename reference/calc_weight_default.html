@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Distance between models. — calc_dist_default • AdaptiveDiscreteSmoothing</title>
+<title>Calculate weights from the distance. — calc_weight_default • AdaptiveDiscreteSmoothing</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Distance between models. — calc_dist_default" />
-<meta property="og:description" content="Distance between models." />
+<meta property="og:title" content="Calculate weights from the distance. — calc_weight_default" />
+<meta property="og:description" content="Calculate weights from the distance." />
 
 
 
@@ -131,34 +131,39 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Distance between models.</h1>
+    <h1>Calculate weights from the distance.</h1>
     
-    <div class="hidden name"><code>calc_dist_default.Rd</code></div>
+    <div class="hidden name"><code>calc_weight_default.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Distance between models.</p>
+    <p>Calculate weights from the distance.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>calc_dist_default</span><span class='op'>(</span><span class='va'>model_1</span>, <span class='va'>model_2</span>, <span class='va'>task_list</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>calc_weight_default</span><span class='op'>(</span><span class='va'>dist</span>, delta <span class='op'>=</span> <span class='fl'>0.7</span>, gamma <span class='op'>=</span> <span class='fl'>0.5</span>, kernel <span class='op'>=</span> <span class='st'>"gaussian"</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>model_1</th>
-      <td><p>(<code><a href='https://mlr3.mlr-org.com/reference/LearnerRegr.html'>LearnerRegr</a></code>)<br />
-First Model.</p></td>
+      <th>dist</th>
+      <td><p>(<code><a href='https://rdrr.io/r/base/numeric.html'>numeric(1)</a></code>) <br />
+A distance.</p></td>
     </tr>
     <tr>
-      <th>model_2</th>
-      <td><p>(<code><a href='https://mlr3.mlr-org.com/reference/LearnerRegr.html'>LearnerRegr</a></code>)<br />
-Second Model.</p></td>
+      <th>delta</th>
+      <td><p>(<code><a href='https://rdrr.io/r/base/numeric.html'>numeric(1)</a></code>) <br />
+Scaling of the distance (bandwidth of the kernel).</p></td>
     </tr>
     <tr>
-      <th>task_list</th>
-      <td><p>(<code><a href='https://mlr3.mlr-org.com/reference/TaskRegr.html'>TaskRegr</a></code>)<br />
-Task list.</p></td>
+      <th>gamma</th>
+      <td><p>(<code><a href='https://rdrr.io/r/base/numeric.html'>numeric(1)</a></code>) <br />
+Final scaling of the weight.</p></td>
+    </tr>
+    <tr>
+      <th>kernel</th>
+      <td><p>(<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>) <br />
+A kernel of "gaussian", "epa", "unif", "tri".</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -169,7 +174,7 @@ Task list.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>(<code><a href='https://rdrr.io/r/base/numeric.html'>numeric(1)</a></code>) <br />
-A distance between the two models.</p>
+A weight corresponding to the distance</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

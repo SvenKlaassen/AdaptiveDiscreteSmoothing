@@ -152,6 +152,7 @@
 
 <ul>
 <li><p><a href='#method-new'><code>ADS$new()</code></a></p></li>
+<li><p><a href='#method-print'><code>ADS$print()</code></a></p></li>
 <li><p><a href='#method-fit'><code>ADS$fit()</code></a></p></li>
 <li><p><a href='#method-predict'><code>ADS$predict()</code></a></p></li>
 <li><p><a href='#method-heatmap'><code>ADS$heatmap()</code></a></p></li>
@@ -169,7 +170,8 @@
   gamma <span class='op'>=</span> <span class='fl'>1</span>,
   iterations <span class='op'>=</span> <span class='fl'>2</span>,
   W_start <span class='op'>=</span> <span class='cn'>NULL</span>,
-  calc_dist <span class='op'>=</span> <span class='va'>calc_dist_default</span>
+  calc_dist <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>fun <span class='op'>=</span> <span class='va'>calc_dist_default</span><span class='op'>)</span>,
+  calc_weight <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>fun <span class='op'>=</span> <span class='va'>calc_weight_default</span>, params <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>kernel <span class='op'>=</span> <span class='st'>"gaussian"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
@@ -199,9 +201,25 @@ Number of iterations.</p></dd>
 Starting weights. Default is the identity matrix.</p></dd>
 
 <dt><code>calc_dist</code></dt><dd><p>(<code>function()</code>) <br />
-A function to calculate the distance between different models.</p></dd>
+A list. If not set to default a list with the following components:
+<ul>
+<li><p><code>fun</code> A function of the form <code>function(model_1,model_2,task_list,...)</code> to calculate the weights.</p></li>
+<li><p><code>params</code> A list of the additional parameters used in <code>fun</code>.</p></li>
+</ul></p></dd>
+
+<dt><code>calc_weight</code></dt><dd><p>(<code>function()</code>) <br />
+A list. If not set to default a list with the following components:
+<ul>
+<li><p><code>fun</code> A function of the form <code>function(dist, delta, gamma,...)</code> to calculate the weights.</p></li>
+<li><p><code>params</code> A list of the additional parameters used in <code>fun</code>.</p></li>
+</ul></p></dd>
 
 </dl><p></div></p>
+<p><hr>
+<a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
+<p>Print ADS objects.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ADS</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
 <p><hr>
 <a id="method-fit"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>fit()</code></h3>
 <p>Estimate ADS models.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
