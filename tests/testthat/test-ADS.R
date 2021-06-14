@@ -19,10 +19,17 @@ for (learner in learnerlist){
       ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
       data <- data.frame(X,"y" = Y, "ind" = ind)
 
+      #parameters
+      delta = 0.7
+      gamma = 1
+      iterations = 2
       model <- ADS$new(data = data,
                        target = "y",
                        individ = "ind",
                        learner = learner,
+                       delta = 0.7,
+                       gamma = 1,
+                       iterations = iterations,
                        calc_weight = list("fun" = calc_weight_default,
                                           "params" = list("kernel" = kernel)))
 
@@ -30,9 +37,14 @@ for (learner in learnerlist){
       expect_output(model$print())
       expect_equal(model$data,data)
       expect_equal(model$learner$id,learner$id)
+      expect_equal(model$delta, rep(delta,iterations))
+      expect_equal(model$gamma, rep(gamma,iterations))
 
       #check fiting
       model$fit(store_predictions = TRUE)
+      expect_length(model$task_list,N)
+      expect_length(model$learner_list,N)
+
       fit_1 <- model$predict(newdata = data)
 
       model_2 <- ADS_function(df = data,
@@ -56,6 +68,8 @@ for (learner in learnerlist){
 test_cases <- expand.grid(
   kernel =  c("gaussian","epa","unif","tri"),
   iterations = c(2,4),
+  delta = 0.7,
+  gamma = 1,
   stringsAsFactors = FALSE)
 
 test_cases["test_name"] = apply(test_cases, 1, paste, collapse = "_")
@@ -74,8 +88,8 @@ for (learner in learnerlist){
       model <- ADS$new(data = data,
                        target = "y",
                        individ = "ind",
-                       delta = rep(0.7,iterations),
-                       gamma = rep(0.3,iterations),
+                       delta = rep(delta,iterations),
+                       gamma = rep(gamma,iterations),
                        iterations = iterations,
                        learner = learner,
                        W_start = diag(N))
@@ -83,16 +97,21 @@ for (learner in learnerlist){
       expect_output(model$print())
       expect_equal(model$data,data)
       expect_equal(model$learner$id,learner$id)
+      expect_equal(model$delta, rep(delta,iterations))
+      expect_equal(model$gamma, rep(gamma,iterations))
 
       #check fiting
       model$fit(store_predictions = TRUE)
+      expect_length(model$task_list,N)
+      expect_length(model$learner_list,N)
+
       fit_1 <- model$predict(newdata = data)
 
       model_2 <- ADS_function(df = data,
                               target = "y",
                               individ = "ind",
-                              delta = rep(0.7,iterations),
-                              gamma = rep(0.3,iterations),
+                              delta = rep(delta,iterations),
+                              gamma = rep(gamma,iterations),
                               iterations = iterations,
                               learner = learner,
                               W_start = diag(N))

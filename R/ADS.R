@@ -22,9 +22,32 @@ ADS <- R6Class("ADS",
                  learner = function(value) {
                    if (missing(value)) return(private$learner_)
                    else stop("can't set field learner")
+                 },
+                 #' @field task_list (`list()`)\cr
+                 #' A list of tasks.
+                 task_list = function(value) {
+                   if (missing(value)) return(private$task_list_)
+                   else stop("can't set field task_list")
+                 },
+                 #' @field learner_list (`list()`)\cr
+                 #' A list of learners.
+                 learner_list = function(value) {
+                   if (missing(value)) return(private$learner_list_)
+                   else stop("can't set field learner_list")
+                 },
+                 #' @field delta (`numeric()`)\cr
+                 #' A vector.
+                 delta = function(value) {
+                   if (missing(value)) return(private$delta_)
+                   else stop("can't set field delta")
+                 },
+                 #' @field gamma (`numeric()`)\cr
+                 #' A vector.
+                 gamma = function(value) {
+                 if (missing(value)) return(private$gamma_)
+                 else stop("can't set field gamma")
                  }
                ),
-
                public = list(
                  #' @description
                  #' Initialize a ADS Class object.
