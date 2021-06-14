@@ -1,3 +1,5 @@
+
+# test different inputs ####
 test_cases <- expand.grid(
   kernel =  c("gaussian","epa","unif","tri"),
   stringsAsFactors = FALSE)
@@ -66,7 +68,7 @@ for (learner in learnerlist){
 }
 
 
-
+# test different inputs ####
 test_cases <- expand.grid(
   kernel =  c("gaussian","epa","unif","tri"),
   iterations = c(2,4),
@@ -129,3 +131,27 @@ for (learner in learnerlist){
     }
   )
 }
+
+# test error messages ####
+#create data
+n <- 20; N <- 5; p <- 2
+X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
+Y <- X%*%rep(1,p) + rnorm(n*N,0,1)
+ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
+data <- data.frame(X,"y" = Y, "ind" = ind)
+
+model <- ADS$new(data = data,
+                 target = "y",
+                 individ = "ind",
+                 delta = 0.7,
+                 gamma = 1,
+                 iterations = 2,
+                 learner = mlr_learners$get("regr.lm"))
+input = "input"
+expect_error(model$data <- input)
+expect_error(model$learner <- input)
+expect_error(model$task_list <- input)
+expect_error(model$learner_list <- input)
+expect_error(model$delta <- input)
+expect_error(model$gamma <- input)
+expect_error(model$weight_path <- input)
