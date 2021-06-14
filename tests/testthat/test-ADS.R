@@ -26,7 +26,7 @@ for (learner in learnerlist){
                        calc_weight = list("fun" = calc_weight_default,
                                           "params" = list("kernel" = kernel)))
       model$fit(store_predictions = TRUE)
-      expect_silent(model)
+      expect_silent(model$print())
       fit_1 <- model$predict(newdata = data)
 
       model_2 <- ADS_function(df = data,
@@ -73,7 +73,7 @@ for (learner in learnerlist){
                                                         iterations = iterations,
                                                         learner = learner,
                                                         W_start = diag(N))
-                                       expect_silent(model)
+                                       expect_silent(model$print())
                                        model$fit(store_predictions = TRUE)
 
                                        fit_1 <- model$predict(newdata = data)

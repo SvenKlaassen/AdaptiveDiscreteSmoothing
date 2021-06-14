@@ -151,10 +151,10 @@ ADS <- R6Class("ADS",
 
                    #construct a path for the weight matrix
                    W_path <- array(NaN, c(N,N,private$iterations_+1))
-                   if (all(is.null(private$W_start))) {
+                   if (all(is.null(private$W_start_))) {
                      W_path[,,1] <- diag(N) #weight matrix for first stage
                    } else {
-                     W_path[,,1] <- W_start
+                     W_path[,,1] <- private$W_start_
                    }
 
                    #start iterations
