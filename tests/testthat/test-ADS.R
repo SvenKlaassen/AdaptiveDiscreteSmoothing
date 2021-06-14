@@ -1,5 +1,5 @@
 test_cases <- expand.grid(
-  kernel =  c("gaussian"),
+  kernel =  c("gaussian","epa","unif","tri"),
   stringsAsFactors = FALSE)
 
 test_cases["test_name"] = apply(test_cases, 1, paste, collapse = "_")
@@ -22,7 +22,9 @@ for (learner in learnerlist){
       model <- ADS$new(data = data,
                        target = "y",
                        individ = "ind",
-                       learner = learner)
+                       learner = learner,
+                       calc_weight = list("fun" = calc_weight_default,
+                                          "params" = list("kernel" = kernel)))
       model$fit(store_predictions = TRUE)
 
       fit_1 <- model$predict(newdata = data)
@@ -30,7 +32,8 @@ for (learner in learnerlist){
       model_2 <- ADS_function(df = data,
                               target = "y",
                               individ = "ind",
-                              learner = learner)
+                              learner = learner,
+                              kernel = kernel)
       fit_2 <- predict_ADS(model_2, newdata = data)$fit
 
       #test heatmap

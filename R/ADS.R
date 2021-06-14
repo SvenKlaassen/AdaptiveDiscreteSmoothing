@@ -104,7 +104,7 @@ ADS <- R6Class("ADS",
                    #check distance and weight funcitons
                    assertFunction(calc_dist, args = c("model_1","model_2","task_list","gamma"))
                    assertFunction(calc_weight$fun, args = c("dist", "delta", "gamma"))
-                   assertList(calc_weight$params,null.ok = TRUE)
+                   assertList(calc_weight$params, null.ok = TRUE)
 
                    private$calc_dist_ = calc_dist
                    private$calc_weight_ = calc_weight
