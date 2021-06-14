@@ -128,7 +128,7 @@ ADS <- R6Class("ADS",
                    data_info = paste0("Outcome variable: ", private$target_, "\n",
                                       "Individuals: ", private$individ_, "\n",
                                       "Covariates: ", paste0(private$covariates_, collapse = ","), "\n",
-                                      "Learners:", paste0(learner$id)
+                                      "Learners:", paste0(private$learner$id)
                    )
                    cat(header, "\n",
                        data_info)

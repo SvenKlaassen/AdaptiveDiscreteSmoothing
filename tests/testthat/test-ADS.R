@@ -48,7 +48,7 @@ for (learner in learnerlist){
 
 
 test_cases <- expand.grid(
-  kernel =  c("gaussian"),
+  kernel =  c("gaussian","epa","unif","tri"),
   iterations = c(2,4),
   stringsAsFactors = FALSE)
 
@@ -74,7 +74,7 @@ for (learner in learnerlist){
                        learner = learner,
                        W_start = diag(N))
       model$fit(store_predictions = TRUE)
-      expect_output(model$print())
+      #expect_output(model$print())
       fit_1 <- model$predict(newdata = data)
 
       model_2 <- ADS_function(df = data,
