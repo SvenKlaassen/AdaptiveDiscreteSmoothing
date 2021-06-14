@@ -17,9 +17,6 @@ Second Model.}
 Task list.}
 
 \item{...}{Additional arguments}
-
-\item{gamma}{(\code{numeric(1)})\cr
-Weighting of the distance.}
 }
 \value{
 (\code{numeric(1)}) \cr

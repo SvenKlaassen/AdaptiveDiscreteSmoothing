@@ -14,6 +14,7 @@ Base class for Adaptive discrete smoothing.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{ADS$new()}}
+\item \href{#method-print}{\code{ADS$print()}}
 \item \href{#method-fit}{\code{ADS$fit()}}
 \item \href{#method-predict}{\code{ADS$predict()}}
 \item \href{#method-heatmap}{\code{ADS$heatmap()}}
@@ -83,6 +84,16 @@ A list. If not set to default a list with the following components:
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print ADS objects.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-fit"></a>}}

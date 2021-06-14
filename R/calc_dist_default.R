@@ -4,8 +4,6 @@
 #' First Model.
 #' @param model_2 ([`LearnerRegr`][mlr3::LearnerRegr])\cr
 #' Second Model.
-#' @param gamma (`numeric(1)`)\cr
-#' Weighting of the distance.
 #' @param task_list ([`TaskRegr`][mlr3::TaskRegr])\cr
 #' Task list.
 #' @param ... Additional arguments

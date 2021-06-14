@@ -1,6 +1,6 @@
 #' Calculate weights from the distance.
 #'
-#' @param distance (`numeric(1)`) \cr
+#' @param dist (`numeric(1)`) \cr
 #' A distance.
 #' @param delta (`numeric(1)`) \cr
 #' Scaling of the distance (bandwidth of the kernel).
