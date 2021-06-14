@@ -217,8 +217,8 @@ ADS <- R6Class("ADS",
                      geom_tile() +
                      xlab(label = "Individual") +
                      ylab(label = "Individual") +
-                     scale_x_continuous(breaks = seq_len(private$level_ind_)) +
-                     scale_y_continuous(breaks = seq_len(private$level_ind_)) +
+                     scale_x_continuous(breaks = seq_len(length(private$level_ind_))) +
+                     scale_y_continuous(breaks = seq_len(length(private$level_ind_))) +
                      facet_wrap(~ .data$Var3) +
                      scale_fill_gradient(name = "Weight",low = "#FFFFFF",high = "#012345") +
                      theme_bw() +

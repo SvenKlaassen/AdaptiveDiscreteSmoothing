@@ -31,6 +31,12 @@ for (learner in learnerlist){
       fit_2 <- predict_ADS(model_2, newdata = data)$fit
 
       expect_equal(fit_1,fit_2)
+
+      #test heatmap
+      plot <- model$heatmap()
+      expect_identical(class(plot), c("gg", "ggplot"))
+      plot2 <- model$heatmap(iterations = 1)
+      expect_identical(class(plot2), c("gg", "ggplot"))
     }
   )
 }
