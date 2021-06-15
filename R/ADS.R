@@ -119,6 +119,7 @@ ADS <- R6Class("ADS",
                    assert(check_character(learner, max.len = 1),
                           check_class(learner, "Learner"))
                    assertTRUE(learner$task_type == "regr")
+                   assertTRUE("weights" %in% learner$properties)
 
                    private$learner_ = learner$clone(deep = TRUE)
 
