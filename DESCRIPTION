@@ -26,7 +26,6 @@ Imports:
     rlang
 Suggests: 
     testthat (>= 3.0.0),
-    mlr3extralearners,
     patrick,
     dplyr,
     glmnet,
@@ -40,4 +39,5 @@ Suggests:
     future,
     future.apply
 Config/testthat/edition: 3
+Remotes: mlr-org/mlr3extralearners
 VignetteBuilder: knitr
