@@ -34,10 +34,8 @@ Suggests:
     knitr,
     rmarkdown,
     ranger,
-    mgcv,
-    mboost,
+    xgboost,
     future,
     future.apply
 Config/testthat/edition: 3
-Remotes: mlr-org/mlr3extralearners
 VignetteBuilder: knitr
