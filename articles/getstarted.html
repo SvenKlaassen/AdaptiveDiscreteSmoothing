@@ -67,7 +67,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/install.html">Installing AdaptiveDiscreteSmoothing</a>
+      <a href="../articles/install.html">Installing Package</a>
     </li>
     <li>
       <a href="../articles/intro_ads.html">Introduction to Adaptive Discrete Smoothing</a>
@@ -75,7 +75,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/SvenKlaassen/AdaptiveDiscreteSmoothing/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -91,7 +98,7 @@
       <h1 data-toc-skip>Get Started</h1>
             
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/SvenKlaassen/AdaptiveDiscreteSmoothing/blob/master/vignettes/getstarted.Rmd"><code>vignettes/getstarted.Rmd</code></a></small>
       <div class="hidden name"><code>getstarted.Rmd</code></div>
 
     </div>
@@ -123,7 +130,7 @@ For each individual <span class="math inline">\(j = 1,\dots, N\)</span>, we gene
 <p>The data is saved into a standard <code><a href="https://rdrr.io/r/base/data.frame.html">data.frame()</a></code>, with a column “ind” (as a <code><a href="https://rdrr.io/r/base/factor.html">factor()</a></code>) which identifies the individuals.<br>
 At first, we have to initialize the adaptive discrete smoothing model with a valid learner. Calling the <code>ADS$fit()</code> method estimates the corresponding parameters.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">AdaptiveDiscreteSmoothing</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/SvenKlaassen/AdaptiveDiscreteSmoothing/">AdaptiveDiscreteSmoothing</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com">mlr3</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com">mlr3learners</a></span><span class="op">)</span>
 <span class="va">learner</span> <span class="op">&lt;-</span> <span class="va">mlr_learners</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"regr.lm"</span><span class="op">)</span>
