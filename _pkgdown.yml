@@ -30,7 +30,7 @@ navbar:
       text: Articles
       icon: fa-solid fa-book
       menu:
-        - text: Installing AdaptiveDiscreteSmoothing
+        - text: Installing Package
           href: articles/install.html
         - text: Introduction to Adaptive Discrete Smoothing
           href: articles/intro_ads.html
