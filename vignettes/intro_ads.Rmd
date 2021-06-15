@@ -91,13 +91,13 @@ for (individual in seq_len(N)){
 }
 data <- data.frame(X,"y" = Y, "ind" = ind)
 ```
-We can apply the same learners as above or work with different learners. For example we can use random forests from the [randomForest-package](https://cran.r-project.org/web/packages/randomForest/index.html),
+We can apply the same learners as above or work with different learners. For example we can use random forests from the [ranger-package](https://cran.r-project.org/web/packages/ranger/index.html),
 ```{r}
 library(mlr3extralearners)
 model_rf <- ADS$new(data = data,
                  target = "y",
                  individ = "ind",
-                 learner = mlr_learners$get("regr.randomForest"),
+                 learner = mlr_learners$get("regr.ranger"),
                  iterations = 4)
 model_rf$fit()
 ```

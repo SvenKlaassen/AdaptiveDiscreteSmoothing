@@ -34,7 +34,7 @@ Suggests:
     covr,
     knitr,
     rmarkdown,
-    randomForest,
+    ranger,
     mgcv,
     mboost,
     future,
