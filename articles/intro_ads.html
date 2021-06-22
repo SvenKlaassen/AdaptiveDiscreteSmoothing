@@ -45,21 +45,21 @@
 </li>
 <li>
   <a href="../articles/getstarted.html">
-    <span class="fas fa-solid fa-rocket"></span>
+    <span class="fa fa-solid fa-rocket"></span>
      
     Get started
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fas fa-file-alt"></span>
+    <span class="fa fa-file-alt"></span>
      
     Reference
   </a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fas fa-solid fa-book"></span>
+    <span class="fa fa-solid fa-book"></span>
      
     Articles
      
@@ -150,10 +150,10 @@ At first, we have to initialize the adaptive discrete smoothing model with a val
 -\alpha_j\\-\alpha_j^2\\ \alpha_j\\ \alpha_j/2\\ \alpha_j/3 \\ \vdots  \end{pmatrix}.\]</span></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span>
-<span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">100</span>; <span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">10</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">10</span>
+<span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span>; <span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">20</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">10</span>
 
 <span class="va">ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">N</span>,each <span class="op">=</span> <span class="va">n</span><span class="op">)</span><span class="op">)</span>
-<span class="va">alpha_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="va">N</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
+<span class="va">alpha_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="va">N</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>
 <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="fl">0</span>, ncol <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
 <span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>
 <span class="kw">for</span> <span class="op">(</span><span class="va">individual</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
@@ -164,7 +164,8 @@ At first, we have to initialize the adaptive discrete smoothing model with a val
   <span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/append.html">append</a></span><span class="op">(</span><span class="va">Y</span>,<span class="va">X_ind</span><span class="op">%*%</span><span class="va">beta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
 <span class="op">}</span>
 <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">X</span>,<span class="st">"y"</span> <span class="op">=</span> <span class="va">Y</span>, <span class="st">"ind"</span> <span class="op">=</span> <span class="va">ind</span><span class="op">)</span></code></pre></div>
-<p>We can apply the same learners as above or work with different learners. For example we can use random forests from the <a href="https://cran.r-project.org/web/packages/ranger/index.html">ranger-package</a>,</p>
+<p>The values of <span class="math inline">\(\alpha\)</span> are sorted increasingly, to be able to interpret the weights (which should be higher on the diagonal of the heatmap).<br>
+We can apply the same learners as above or work with different learners. For example we can use random forests from the <a href="https://cran.r-project.org/web/packages/ranger/index.html">ranger-package</a> or</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model_rf</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/ADS.html">ADS</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,
                  target <span class="op">=</span> <span class="st">"y"</span>,
@@ -172,7 +173,7 @@ At first, we have to initialize the adaptive discrete smoothing model with a val
                  learner <span class="op">=</span> <span class="va">mlr_learners</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,
                  iterations <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>
 <span class="va">model_rf</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>cross-validated elastic net from the <a href="https://cran.r-project.org/web/packages/glmnet/index.html">glmnet-package</a></p>
+<p>cross-validated elastic net from the <a href="https://cran.r-project.org/web/packages/glmnet/index.html">glmnet-package</a>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model_glmnet</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/ADS.html">ADS</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,
                  target <span class="op">=</span> <span class="st">"y"</span>,
@@ -180,24 +181,50 @@ At first, we have to initialize the adaptive discrete smoothing model with a val
                  learner <span class="op">=</span> <span class="va">mlr_learners</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"regr.cv_glmnet"</span><span class="op">)</span>,
                  iterations <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>
 <span class="va">model_glmnet</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>or boosting from the <a href="https://xgboost.readthedocs.io/en/latest/R-package/index.html">xgboost-package</a>.</p>
 <p>Next, we generate a test dataset <code>data_test</code> with the same coefficients and evaluate the performance of the estimators.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">data_test</span><span class="op">$</span><span class="va">y</span> <span class="op">-</span> <span class="va">model_rf</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">data_test</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; [1] 7.378971</span>
+<span class="co">#&gt; [1] 3.772773</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">data_test</span><span class="op">$</span><span class="va">y</span> <span class="op">-</span> <span class="va">model_glmnet</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">data_test</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; [1] 1.315827</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">data_test</span><span class="op">$</span><span class="va">y</span> <span class="op">-</span> <span class="va">model_xgb</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">data_test</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; [1] 13.15944</span></code></pre></div>
+<span class="co">#&gt; [1] 1.402155</span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model_rf</span><span class="op">$</span><span class="fu">heatmap</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p><img src="intro_ads_files/figure-html/unnamed-chunk-12-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="intro_ads_files/figure-html/unnamed-chunk-11-1.png" width="80%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model_glmnet</span><span class="op">$</span><span class="fu">heatmap</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p><img src="intro_ads_files/figure-html/unnamed-chunk-13-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="intro_ads_files/figure-html/unnamed-chunk-12-1.png" width="80%" style="display: block; margin: auto;"></p>
+</div>
+<div id="a-nonlinear-example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#a-nonlinear-example" class="anchor"></a>A nonlinear Example</h2>
+<p>For each individual <span class="math inline">\(j = 1,\dots, N\)</span>, we generate <span class="math inline">\(i = 1,\dots n\)</span> observations of covariates <span class="math inline">\(X_{i,j} \in \mathbb{R}^p\)</span>, where the covariates are generated by a normal distribution <span class="math inline">\(\mathcal{N}(0,\Sigma)\)</span> (here we consider <span class="math inline">\(\Sigma = I_p\)</span>). The outcome is constructed by the following model <span class="math display">\[Y_{i,j} = 2\sin(\alpha_jX_{i,j,1}) + \alpha_j^2 X_{i,j,2} + \varepsilon_{i,j},\]</span> where <span class="math inline">\(\varepsilon_{i,j} \sim \mathcal{N}(0,\sigma_\varepsilon^2)\)</span> and <span class="math inline">\(\alpha_j \sim \mathcal{U}[0,1]\)</span>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model_xgb</span><span class="op">$</span><span class="fu">heatmap</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p><img src="intro_ads_files/figure-html/unnamed-chunk-14-1.png" width="80%" style="display: block; margin: auto;"></p>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span>
+<span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span>; <span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">10</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">10</span>
+<span class="va">ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">N</span>,each <span class="op">=</span> <span class="va">n</span><span class="op">)</span><span class="op">)</span>
+<span class="va">alpha_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="va">N</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="fl">0</span>, ncol <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
+<span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>
+<span class="kw">for</span> <span class="op">(</span><span class="va">individual</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
+  <span class="va">X_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">*</span><span class="va">p</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span>
+  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">X</span>,<span class="va">X_ind</span><span class="op">)</span>
+  <span class="va">alpha</span> <span class="op">&lt;-</span> <span class="va">alpha_vec</span><span class="op">[</span><span class="va">individual</span><span class="op">]</span>
+  <span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/append.html">append</a></span><span class="op">(</span><span class="va">Y</span>,<span class="fl">2</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Trig.html">sin</a></span><span class="op">(</span><span class="va">alpha</span><span class="op">*</span><span class="va">X_ind</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">+</span><span class="va">alpha</span><span class="op">^</span><span class="fl">2</span><span class="op">*</span><span class="va">X_ind</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span>
+<span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">X</span>,<span class="st">"y"</span> <span class="op">=</span> <span class="va">Y</span>, <span class="st">"ind"</span> <span class="op">=</span> <span class="va">ind</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">model_rf</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/ADS.html">ADS</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,
+                 target <span class="op">=</span> <span class="st">"y"</span>,
+                 individ <span class="op">=</span> <span class="st">"ind"</span>,
+                 learner <span class="op">=</span> <span class="va">mlr_learners</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,
+                 iterations <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>
+<span class="va">model_rf</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">data_test</span><span class="op">$</span><span class="va">y</span> <span class="op">-</span> <span class="va">model_rf</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">data_test</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [1] 1.059149</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">model_rf</span><span class="op">$</span><span class="fu">heatmap</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<p><img src="intro_ads_files/figure-html/unnamed-chunk-17-1.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
   </div>
 
