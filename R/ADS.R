@@ -188,7 +188,7 @@ ADS <- R6Class("ADS",
                  #' Estimate ADS models.
                  #'
                  #' @param store_predictions (`logical(1)`) \cr
-                 #' Indicates whether the predictions for the nuisance functions should be
+                 #' Indicates whether the predictions should be
                  #' stored in field `predictions`. Default is `FALSE`.
                  #'
                  #' @return self
@@ -277,7 +277,10 @@ ADS <- R6Class("ADS",
                  #' @param newdata (`data.frame()`) \cr
                  #' Predicts the model on new data. Has to be a data.frame with the same columns as in the trained model.
                  #'
-                 #' @return A vector containig the predicted values.
+                 #' @param iterations (`vector()`) \cr
+                 #' Specifies the iterations to predict. Defaults to all iterations.
+                 #'
+                 #' @return An array containig the predicted values over different iterations.
                  predict = function(newdata, iterations = NULL){
                    assertDataFrame(newdata,any.missing = FALSE)
                    assertSubset(names(private$data_)[names(private$data_) != private$target_],names(newdata))
@@ -286,8 +289,8 @@ ADS <- R6Class("ADS",
                    newdata$weight_ADS = 1
                    #split newdata into lists based on individual
                    newdata[,!(names(newdata) == private$individ_)]
-                   newdata_list <-  split(newdata[,!(names(newdata) == private$individ_)],
-                                          f = newdata[,private$individ_])
+                   newdata_list <- split(newdata[,!(names(newdata) == private$individ_)],
+                                         f = newdata[,private$individ_])
                    if (is.null(iterations)) {
                      iterations <- 1:private$iterations_
                    }
