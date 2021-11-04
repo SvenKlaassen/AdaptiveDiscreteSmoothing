@@ -44,12 +44,15 @@ for (learner in learnerlist){
 
       #check fiting
       model$fit(store_predictions = TRUE)
-      expect_length(model$task_list,N)
-      expect_length(model$learner_list,N)
+      expect_length(model$task_list,iterations)
+      for (it in 1:iterations){expect_length(model$task_list[[it]],N)}
+      expect_length(model$learner_list,iterations)
+      for (it in 1:iterations){expect_length(model$learner_list[[it]],N)}
       expect_array(model$weight_path, d = 3)
       expect_equal(dim(model$weight_path),c(N,N,iterations + 1))
 
       fit_1 <- model$predict(newdata = data)
+      expect_equal(model$preditions, fit_1)
 
       model_2 <- ADS_function(df = data,
                               target = "y",
@@ -57,6 +60,7 @@ for (learner in learnerlist){
                               learner = learner,
                               kernel = kernel)
       fit_2 <- predict_ADS(model_2, newdata = data)$fit
+      expect_equal(fit_1[,iterations], fit_2, tolerance = 1e-1)
 
       #test heatmap
       plot <- model$heatmap()
@@ -106,12 +110,15 @@ for (learner in learnerlist){
 
       #check fiting
       model$fit(store_predictions = TRUE)
-      expect_length(model$task_list,N)
-      expect_length(model$learner_list,N)
+      expect_length(model$task_list,iterations)
+      for (it in 1:iterations){expect_length(model$task_list[[it]],N)}
+      expect_length(model$learner_list,iterations)
+      for (it in 1:iterations){expect_length(model$learner_list[[it]],N)}
       expect_array(model$weight_path, d = 3)
       expect_equal(dim(model$weight_path),c(N,N,iterations + 1))
 
       fit_1 <- model$predict(newdata = data)
+      expect_equal(model$preditions, fit_1)
 
       model_2 <- ADS_function(df = data,
                               target = "y",
@@ -122,6 +129,7 @@ for (learner in learnerlist){
                               learner = learner,
                               W_start = diag(N))
       fit_2 <- predict_ADS(model_2, newdata = data)$fit
+      expect_equal(fit_1[,iterations], fit_2, tolerance = 1e-1)
 
       #test heatmap
       plot <- model$heatmap()

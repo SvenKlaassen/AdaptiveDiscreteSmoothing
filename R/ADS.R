@@ -52,6 +52,12 @@ ADS <- R6Class("ADS",
                  weight_path = function(value) {
                    if (missing(value)) return(private$W_path_)
                    else stop("can't set field weight_path")
+                 },
+                 #' @field predictions (`array()`)\cr
+                 #' An array.
+                 preditions = function(value) {
+                   if (missing(value)) return(private$predictions_)
+                   else stop("can't set field predictions")
                  }
                ),
                public = list(
@@ -200,10 +206,17 @@ ADS <- R6Class("ADS",
                      W_path[,,1] <- private$W_start_
                    }
 
+                   #initialize lists
+                   task_list <- learner_list <- list()
+                   if (store_predictions){
+                     private$predictions_ <- array(data = NA,
+                                                   dim = c(n,private$iterations_),
+                                                   dimnames = list(1:n, 1:private$iterations_))
+                   }
                    #start iterations
                    for (it in 1:private$iterations_){
                      #list of tasks
-                     task_list <- lapply(seq_len(N), function(i) {
+                     task_list[[it]] <- lapply(seq_len(N), function(i) {
                        data <- private$data_[,!(names(private$data_) == private$individ_)]
                        data$weight_ADS <- vapply(ind_index, function(j) W_path[i,j,it], FUN.VALUE = numeric(1))
                        task <- TaskRegr$new(id = level_vec[i], backend = data, target = private$target_)
@@ -214,17 +227,17 @@ ADS <- R6Class("ADS",
                        task
                      })
                      #list of learners (with training)
-                     learner_list <- lapply(seq_len(N), function(i) {
+                     learner_list[[it]] <- lapply(seq_len(N), function(i) {
                        temp_learner <- private$learner_$clone(deep = TRUE)
-                       temp_learner$train(task_list[[i]])
+                       temp_learner$train(task_list[[it]][[i]])
                      })
                      #adjust weight matrix
                      W_path[,,it + 1] <- vapply(seq_len(N), function(i) {
                        vapply(seq_len(N),function(j) {
                          dist <- do.call(private$calc_dist_$fun,
-                                         args = c(list(model_1 = learner_list[[i]],
-                                                       model_2 = learner_list[[j]],
-                                                       task_list = task_list),
+                                         args = c(list(model_1 = learner_list[[it]][[i]],
+                                                       model_2 = learner_list[[it]][[j]],
+                                                       task_list = task_list[[it]]),
                                                   private$calc_dist_$params))
                          assertNumber(dist)
                          weight <- do.call(private$calc_weight_$fun,
@@ -238,22 +251,23 @@ ADS <- R6Class("ADS",
                      }, FUN.VALUE = numeric(N))
                      #set diag weight to 1
                      diag(W_path[,,it + 1]) <- 1
+
+                     if (store_predictions){
+                       #fitted values
+                       fit_list <- lapply(seq_len(N), function(i) {
+                         learner_list[[it]][[i]]$predict(task_list[[it]][[i]], row_ids = seq_len(n)[ind_index == i])
+                       })
+                       #vector of fitted values
+
+                       invisible(lapply(seq_len(N), function(i) {private$predictions_[ind_index == i, it] <<- fit_list[[i]]$response}))
+                     }
                    }
                    private$W_path_ <- W_path
                    private$learner_list_ <- learner_list
                    private$task_list_ <- task_list
                    private$level_ind_ <- level_vec
 
-                   if (store_predictions){
-                     #fitted values
-                     fit_list <- lapply(seq_len(N), function(i) {
-                       learner_list[[i]]$predict(task_list[[i]], row_ids = seq_len(n)[ind_index == i])
-                     })
-                     #vector of fitted values
-                     private$predictions <- rep(NA,n)
-                     invisible(lapply(seq_len(N), function(i) {private$predictions[ind_index == i] <<- fit_list[[i]]$response}))
-                     names(private$predictions) <- seq_len(n)
-                   }
+
 
                    invisible(self)
                  },
@@ -264,7 +278,7 @@ ADS <- R6Class("ADS",
                  #' Predicts the model on new data. Has to be a data.frame with the same columns as in the trained model.
                  #'
                  #' @return A vector containig the predicted values.
-                 predict = function(newdata){
+                 predict = function(newdata, iterations = NULL){
                    assertDataFrame(newdata,any.missing = FALSE)
                    assertSubset(names(private$data_)[names(private$data_) != private$target_],names(newdata))
                    assertFactor(newdata[,private$individ_])
@@ -274,15 +288,23 @@ ADS <- R6Class("ADS",
                    newdata[,!(names(newdata) == private$individ_)]
                    newdata_list <-  split(newdata[,!(names(newdata) == private$individ_)],
                                           f = newdata[,private$individ_])
-                   #predict values for each model
-                   fit_list <- lapply(levels(newdata[,private$individ_]), function(level) {
-                     i <- match(level,private$level_ind_)
-                     j <- match(level,levels(newdata[,private$individ_]))
-                     predict(object = private$learner_list_[[i]], newdata = newdata_list[[j]])
-                   })
-                   #reverse the split to make the vector compatible with newdata
-                   fit <- unsplit(fit_list, f = newdata[,private$individ_])
-                   names(fit) <- 1:dim(newdata)[1]
+                   if (is.null(iterations)) {
+                     iterations <- 1:private$iterations_
+                   }
+
+                   fit <- array(data = NA,
+                                dim = c(dim(newdata)[1],length(iterations)),
+                                dimnames = list(1:dim(newdata)[1], 1:private$iterations_))
+                   for (it in iterations){
+                     #predict values for each model
+                     fit_list_it <- lapply(levels(newdata[,private$individ_]), function(level) {
+                       i <- match(level,private$level_ind_)
+                       j <- match(level,levels(newdata[,private$individ_]))
+                       predict(object = private$learner_list_[[it]][[i]], newdata = newdata_list[[j]])
+                     })
+                     #reverse the split to make the vector compatible with newdata
+                     fit[,it] <- unsplit(fit_list_it, f = newdata[,private$individ_])
+                   }
                    return(fit)
                  },
                  #' @description
@@ -330,7 +352,7 @@ ADS <- R6Class("ADS",
                  iterations_ = NULL,
                  calc_dist_ = NULL,
                  calc_weight_ = NULL,
-                 predictions = NULL,
+                 predictions_ = NULL,
                  W_path_ = NULL,
                  learner_list_ = NULL,
                  task_list_ = NULL,
