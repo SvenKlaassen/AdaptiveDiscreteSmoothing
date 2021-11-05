@@ -52,7 +52,7 @@ for (learner in learnerlist){
       expect_equal(dim(model$weight_path),c(N,N,iterations + 1))
 
       fit_1 <- model$predict(newdata = data)
-      expect_equal(model$preditions, fit_1)
+      expect_equal(model$predictions, fit_1)
 
       model_2 <- ADS_function(df = data,
                               target = "y",
@@ -119,7 +119,7 @@ for (learner in learnerlist){
       expect_equal(dim(model$weight_path),c(N,N,iterations + 1))
 
       fit_1 <- model$predict(newdata = data)
-      expect_equal(model$preditions, fit_1)
+      expect_equal(model$predictions, fit_1)
 
       model_2 <- ADS_function(df = data,
                               target = "y",

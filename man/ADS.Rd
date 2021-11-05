@@ -10,14 +10,6 @@
 Base class for Adaptive discrete smoothing.
 }
 \concept{ADS}
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{predictions}}{(\code{array()})\cr
-An array.}
-}
-\if{html}{\out{</div>}}
-}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
@@ -54,6 +46,8 @@ An array.}
 \item \href{#method-print}{\code{ADS$print()}}
 \item \href{#method-fit}{\code{ADS$fit()}}
 \item \href{#method-predict}{\code{ADS$predict()}}
+\item \href{#method-calc_mse}{\code{ADS$calc_mse()}}
+\item \href{#method-plot_mse}{\code{ADS$plot_mse()}}
 \item \href{#method-heatmap}{\code{ADS$heatmap()}}
 \item \href{#method-clone}{\code{ADS$clone()}}
 }
@@ -146,7 +140,7 @@ Estimate ADS models.
 \describe{
 \item{\code{store_predictions}}{(\code{logical(1)}) \cr
 Indicates whether the predictions should be
-stored in field \code{predictions}. Default is \code{FALSE}.}
+stored in field \code{predictions_}. Default is \code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -175,7 +169,63 @@ Specifies the iterations to predict. Defaults to all iterations.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-An array containig the predicted values over different iterations.
+An array containing the predicted values over different iterations.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-calc_mse"></a>}}
+\if{latex}{\out{\hypertarget{method-calc_mse}{}}}
+\subsection{Method \code{calc_mse()}}{
+Calculate the mean squared error for indiviuals over different iterations.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$calc_mse(newdata)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{newdata}}{(\code{data.frame()}) \cr
+Calculate the mean squared error on new data. Has to be a data.frame with the same columns as in the trained model.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list containing the mean squared error for indiviudals and the combined model.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot_mse"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_mse}{}}}
+\subsection{Method \code{plot_mse()}}{
+Plot the mean squeared error over the iterations. At iteration zero, all predictions are initialized to be zero.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$plot_mse(
+  newdata = NULL,
+  individuals = NULL,
+  iterations = NULL,
+  interactive = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{newdata}}{(\code{data.frame()}) \cr
+Plot the mean squared error out-of-sample. Has to be a data.frame with the same columns as in the trained model.}
+
+\item{\code{individuals}}{(\code{character()}) \cr
+Individuals to plot the weights for. Defaults to all individuals.}
+
+\item{\code{iterations}}{(\code{integer()}) \cr
+Steps to plot the weights for. Defaults to all iterations.}
+
+\item{\code{interactive}}{(\code{logical(1)}) \cr
+Create an interactive plot with \code{plotly}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+list
 }
 }
 \if{html}{\out{<hr>}}

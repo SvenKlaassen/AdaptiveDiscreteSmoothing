@@ -25,7 +25,8 @@ Imports:
     ggplot2,
     rlang,
     viridis,
-    plotly
+    plotly,
+    scales
 Suggests: 
     testthat (>= 3.0.0),
     patrick,
