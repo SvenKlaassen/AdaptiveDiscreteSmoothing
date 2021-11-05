@@ -313,31 +313,71 @@ ADS <- R6Class("ADS",
                  #' @description
                  #' Plot the used weights as a heatmap.
                  #'
+                 #' @param individuals (`character()`) \cr
+                 #' Individuals to plot the weights for. Defaults to all individuals.
+                 #'
                  #' @param iterations (`integer()`) \cr
                  #' Steps to plot the weights for. Defaults to all iterations.
                  #'
+                 #' @param interactive (`logical(1)`) \cr
+                 #' Create an interactive plot with `plotly`.
+                 #'
+                 #' @param show_axis_text (`logical(1)`) \cr
+                 #' Show axis tick text.
+                 #'
                  #' @return list
-                 heatmap = function(iterations = NULL){
+                 heatmap = function(individuals = NULL,
+                                    iterations = NULL,
+                                    interactive = TRUE,
+                                    show_axis_text = TRUE){
                    if (is.null(iterations)){
                      iterations <- seq_len(private$iterations_)
                    }
-                   assertSubset(iterations,seq_len(private$iterations_))
+                   if (is.null(individuals)){
+                     individuals <- private$level_ind_
+                   }
+                   # check inputs
+                   assertCharacter(individuals)
+                   assertIntegerish(iterations)
+                   assertLogical(interactive, len = 1)
+                   assertLogical(show_axis_text, len = 1)
+                   assertSubset(iterations, seq_len(private$iterations_))
+                   assertSubset(individuals, private$level_ind_)
+
+                   #reshape data
                    df <- reshape2::melt(private$W_path_[,,iterations])
+                   df$Var1 <- as.factor(df$Var1)
+                   df$Var2 <- as.factor(df$Var2)
+                   levels(df$Var1) <- levels(df$Var2) <- levels(private$ind_)
                    df$Var3 <- rep(iterations,each = nlevels(private$ind_)^2)
-                   heatmap <- ggplot(df, aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
+                   df$text <-paste0("Individual i: ", df$Var2, "\n","Individual j: ", df$Var1, "\n", "Weight: ",round(df$value,2))
+                   #filter data
+                   df_filtered <- df[(vapply(df$Var1, function(x) any(x == individuals), FUN.VALUE = FALSE)) & (vapply(df$Var2, function(x) any(x == individuals), FUN.VALUE = FALSE)),]
+
+                   heatmap <- ggplot(df_filtered, aes(x = .data$Var1, y = .data$Var2, fill =.data$value, text = .data$text)) +
                      geom_tile() +
-                     xlab(label = "Individual") +
-                     ylab(label = "Individual") +
-                     scale_x_continuous(breaks = seq_len(length(private$level_ind_))) +
-                     scale_y_continuous(breaks = seq_len(length(private$level_ind_))) +
+                     xlab(label = "Individual j") +
+                     ylab(label = "Individual i") +
+                     scale_x_discrete(limits = unlist(individuals)) +
+                     scale_y_discrete(limits = rev(unlist(individuals))) +
                      facet_wrap(~ .data$Var3) +
-                     scale_fill_gradient(name = "Weight",low = "#FFFFFF",high = "#012345") +
+                     viridis::scale_fill_viridis(name="Weight",option ="C") +
                      theme_bw() +
                      theme(strip.placement = "outside",
                                     plot.title = element_text(hjust = 0.5),
                                     strip.background = element_rect(fill = "#EEEEEE", color = "#FFFFFF")) +
                      ggtitle(label = "Weight Matrix") +
                      theme(legend.position="bottom")
+
+                   if (!show_axis_text){
+                     heatmap <- heatmap +
+                       theme(axis.text.x = element_blank(),
+                             axis.text.y = element_blank())
+                   }
+
+                   if (interactive){
+                     heatmap <- plotly::ggplotly(heatmap, tooltip="text")
+                   }
                    return(heatmap)
 
                  }
