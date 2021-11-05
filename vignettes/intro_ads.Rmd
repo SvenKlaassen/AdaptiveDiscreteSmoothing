@@ -98,7 +98,7 @@ learner = mlr_learners$get("regr.ranger")
 model_rf <- ADS$new(data = data,
                  target = "y",
                  individ = "ind",
-                 learner = mlr_learners$get("regr.cv_glmnet"),
+                 learner = mlr_learners$get("regr.ranger"),
                  iterations = 4)
 model_rf$fit()
 ```
@@ -170,7 +170,7 @@ data <- data.frame(X,"y" = Y, "ind" = ind)
 model_rf <- ADS$new(data = data,
                  target = "y",
                  individ = "ind",
-                 learner = mlr_learners$get("regr.cv_glmnet"),
+                 learner = mlr_learners$get("regr.ranger"),
                  iterations = 4)
 model_rf$fit()
 ```
