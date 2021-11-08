@@ -26,7 +26,8 @@ Imports:
     rlang,
     viridis,
     plotly,
-    scales
+    scales,
+    gsl
 Suggests: 
     testthat (>= 3.0.0),
     patrick,

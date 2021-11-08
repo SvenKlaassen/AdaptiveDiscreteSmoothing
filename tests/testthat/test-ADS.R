@@ -94,7 +94,7 @@ for (learner in learnerlist){
 # test different inputs ####
 test_cases <- expand.grid(
   kernel =  c("gaussian","epa","unif","tri"),
-  iterations = c(1),
+  iterations = 2,
   delta = 0.7,
   gamma = 1,
   stringsAsFactors = FALSE)
