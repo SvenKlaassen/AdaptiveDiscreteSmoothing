@@ -9,7 +9,7 @@
 #' @family ADS
 #'
 #' @export
-ADS <- R6Class("ADS",
+ADS = R6Class("ADS",
                active = list(
                  #' @field data (`data.frame()`)\cr
                  #' Data frame.
@@ -52,6 +52,12 @@ ADS <- R6Class("ADS",
                  weight_path = function(value) {
                    if (missing(value)) return(private$W_path_)
                    else stop("can't set field weight_path")
+                 },
+                 #' @field predictions (`array()`)\cr
+                 #' An array.
+                 predictions = function(value) {
+                   if (missing(value)) return(private$predictions_)
+                   else stop("can't set field predictions")
                  }
                ),
                public = list(
@@ -127,13 +133,14 @@ ADS <- R6Class("ADS",
                    assertIntegerish(iterations, lower = 1)
                    assertNumeric(delta,lower = 0)
                    if (length(delta) == 1){
-                     delta <- rep(delta,iterations)
+                     delta = rep(delta,iterations)
                    } else {
                      checkmate::assertTRUE(length(delta) == iterations)
                    }
                    assertNumeric(gamma,lower = 0)
+                   assertTRUE(all(gamma > 0))
                    if (length(gamma) == 1){
-                     gamma <- rep(gamma,iterations)
+                     gamma = rep(gamma,iterations)
                    } else {
                      checkmate::assertTRUE(length(gamma) == iterations)
                    }
@@ -182,52 +189,59 @@ ADS <- R6Class("ADS",
                  #' Estimate ADS models.
                  #'
                  #' @param store_predictions (`logical(1)`) \cr
-                 #' Indicates whether the predictions for the nuisance functions should be
-                 #' stored in field `predictions`. Default is `FALSE`.
+                 #' Indicates whether the predictions should be
+                 #' stored in field `predictions_`. Default is `FALSE`.
                  #'
                  #' @return self
                  fit = function(store_predictions = FALSE){
                    level_vec = levels(private$ind_)
                    N = nlevels(private$ind_)
-                   ind_index <- as.integer(1:N)[private$ind_]
+                   ind_index = as.integer(1:N)[private$ind_]
                    n = length(private$ind_)
 
                    #construct a path for the weight matrix
-                   W_path <- array(NaN, c(N,N,private$iterations_+1))
+                   W_path = array(NaN, c(N,N,private$iterations_+1))
                    if (all(is.null(private$W_start_))) {
-                     W_path[,,1] <- diag(N) #weight matrix for first stage
+                     W_path[,,1] = diag(N) #weight matrix for first stage
                    } else {
-                     W_path[,,1] <- private$W_start_
+                     W_path[,,1] = private$W_start_
                    }
 
+                   #initialize lists
+                   task_list = learner_list = list()
+                   if (store_predictions){
+                     private$predictions_ = array(data = NA,
+                                                   dim = c(n,private$iterations_),
+                                                   dimnames = list(1:n, 1:private$iterations_))
+                   }
                    #start iterations
                    for (it in 1:private$iterations_){
                      #list of tasks
-                     task_list <- lapply(seq_len(N), function(i) {
-                       data <- private$data_[,!(names(private$data_) == private$individ_)]
-                       data$weight_ADS <- vapply(ind_index, function(j) W_path[i,j,it], FUN.VALUE = numeric(1))
-                       task <- TaskRegr$new(id = level_vec[i], backend = data, target = private$target_)
+                     task_list[[it]] = lapply(seq_len(N), function(i) {
+                       data = private$data_[,!(names(private$data_) == private$individ_)]
+                       data$weight_ADS = vapply(ind_index, function(j) W_path[i,j,it], FUN.VALUE = numeric(1))
+                       task = TaskRegr$new(id = level_vec[i], backend = data, target = private$target_)
                        #change role of weight
                        #task$set_col_role("weight_ADS","weight")
-                       task$col_roles$feature <- task$col_roles$feature[-length(task$col_roles$feature)]
-                       task$col_roles$weight <- "weight_ADS"
+                       task$col_roles$feature = task$col_roles$feature[-length(task$col_roles$feature)]
+                       task$col_roles$weight = "weight_ADS"
                        task
                      })
                      #list of learners (with training)
-                     learner_list <- lapply(seq_len(N), function(i) {
-                       temp_learner <- private$learner_$clone(deep = TRUE)
-                       temp_learner$train(task_list[[i]])
+                     learner_list[[it]] = lapply(seq_len(N), function(i) {
+                       temp_learner = private$learner_$clone(deep = TRUE)
+                       temp_learner$train(task_list[[it]][[i]])
                      })
                      #adjust weight matrix
-                     W_path[,,it + 1] <- vapply(seq_len(N), function(i) {
+                     W_path[,,it + 1] = vapply(seq_len(N), function(i) {
                        vapply(seq_len(N),function(j) {
-                         dist <- do.call(private$calc_dist_$fun,
-                                         args = c(list(model_1 = learner_list[[i]],
-                                                       model_2 = learner_list[[j]],
-                                                       task_list = task_list),
+                         dist = do.call(private$calc_dist_$fun,
+                                         args = c(list(model_1 = learner_list[[it]][[i]],
+                                                       model_2 = learner_list[[it]][[j]],
+                                                       task_list = task_list[[it]]),
                                                   private$calc_dist_$params))
                          assertNumber(dist)
-                         weight <- do.call(private$calc_weight_$fun,
+                         weight = do.call(private$calc_weight_$fun,
                                            args = c(list(dist = dist,
                                                          delta = private$delta_[it],
                                                          gamma = private$gamma_[it]),
@@ -237,23 +251,24 @@ ADS <- R6Class("ADS",
                        }, FUN.VALUE = numeric(1))
                      }, FUN.VALUE = numeric(N))
                      #set diag weight to 1
-                     diag(W_path[,,it + 1]) <- 1
-                   }
-                   private$W_path_ <- W_path
-                   private$learner_list_ <- learner_list
-                   private$task_list_ <- task_list
-                   private$level_ind_ <- level_vec
+                     diag(W_path[,,it + 1]) = 1
 
-                   if (store_predictions){
-                     #fitted values
-                     fit_list <- lapply(seq_len(N), function(i) {
-                       learner_list[[i]]$predict(task_list[[i]], row_ids = seq_len(n)[ind_index == i])
-                     })
-                     #vector of fitted values
-                     private$predictions <- rep(NA,n)
-                     invisible(lapply(seq_len(N), function(i) {private$predictions[ind_index == i] <<- fit_list[[i]]$response}))
-                     names(private$predictions) <- seq_len(n)
+                     if (store_predictions){
+                       #fitted values
+                       fit_list = lapply(seq_len(N), function(i) {
+                         learner_list[[it]][[i]]$predict(task_list[[it]][[i]], row_ids = seq_len(n)[ind_index == i])
+                       })
+                       #vector of fitted values
+
+                       invisible(lapply(seq_len(N), function(i) {private$predictions_[ind_index == i, it] <<- fit_list[[i]]$response}))
+                     }
                    }
+                   private$W_path_ = W_path
+                   private$learner_list_ = learner_list
+                   private$task_list_ = task_list
+                   private$level_ind_ = level_vec
+
+
 
                    invisible(self)
                  },
@@ -263,8 +278,11 @@ ADS <- R6Class("ADS",
                  #' @param newdata (`data.frame()`) \cr
                  #' Predicts the model on new data. Has to be a data.frame with the same columns as in the trained model.
                  #'
-                 #' @return A vector containig the predicted values.
-                 predict = function(newdata){
+                 #' @param iterations (`vector()`) \cr
+                 #' Specifies the iterations to predict. Defaults to all iterations.
+                 #'
+                 #' @return An array containing the predicted values over different iterations.
+                 predict = function(newdata, iterations = NULL){
                    assertDataFrame(newdata,any.missing = FALSE)
                    assertSubset(names(private$data_)[names(private$data_) != private$target_],names(newdata))
                    assertFactor(newdata[,private$individ_])
@@ -272,47 +290,219 @@ ADS <- R6Class("ADS",
                    newdata$weight_ADS = 1
                    #split newdata into lists based on individual
                    newdata[,!(names(newdata) == private$individ_)]
-                   newdata_list <-  split(newdata[,!(names(newdata) == private$individ_)],
-                                          f = newdata[,private$individ_])
-                   #predict values for each model
-                   fit_list <- lapply(levels(newdata[,private$individ_]), function(level) {
-                     i <- match(level,private$level_ind_)
-                     j <- match(level,levels(newdata[,private$individ_]))
-                     predict(object = private$learner_list_[[i]], newdata = newdata_list[[j]])
-                   })
-                   #reverse the split to make the vector compatible with newdata
-                   fit <- unsplit(fit_list, f = newdata[,private$individ_])
-                   names(fit) <- 1:dim(newdata)[1]
+                   newdata_list = split(newdata[,!(names(newdata) == private$individ_)],
+                                         f = newdata[,private$individ_])
+                   if (is.null(iterations)) {
+                     iterations = 1:private$iterations_
+                   }
+
+                   fit = array(data = NA,
+                                dim = c(dim(newdata)[1],length(iterations)),
+                                dimnames = list(1:dim(newdata)[1], 1:private$iterations_))
+                   for (it in iterations){
+                     #predict values for each model
+                     fit_list_it = lapply(levels(newdata[,private$individ_]), function(level) {
+                       i = match(level,private$level_ind_)
+                       j = match(level,levels(newdata[,private$individ_]))
+                       predict(object = private$learner_list_[[it]][[i]], newdata = newdata_list[[j]])
+                     })
+                     #reverse the split to make the vector compatible with newdata
+                     fit[,it] = unsplit(fit_list_it, f = newdata[,private$individ_])
+                   }
                    return(fit)
                  },
                  #' @description
-                 #' Plot the used weights as a heatmap.
+                 #' Calculate the mean squared error for indiviuals over different iterations.
+                 #'
+                 #' @param newdata (`data.frame()`) \cr
+                 #' Calculate the mean squared error on new data. Has to be a data.frame with the same columns as in the trained model.
+                 #'
+                 #' @return A list containing the mean squared error for indiviudals and the combined model.
+                 calc_mse = function(newdata){
+                   assertDataFrame(newdata,any.missing = FALSE)
+                   assertFactor(newdata[,private$individ_])
+
+                   pred = data.frame(rep(0,dim(newdata)[1]), self$predict(newdata = newdata))
+                   colnames(pred) = 0:private$iterations_
+                   target = newdata[private$target_][,1]
+                   mse = colMeans((target - pred)^2)
+
+                   #split the values for individuals
+                   ind = private$ind_
+                   target_list = split(target, f = ind)
+                   pred_list = split(pred,f = ind)
+                   mse_list = lapply(names(pred_list), function(ind){
+                     colMeans((pred_list[ind][[1]]-target_list[ind][[1]])^2)
+                   })
+                   names(mse_list) = names(target_list)
+
+                   res = list("mse" = mse, "ind_mse" = mse_list)
+                   return(res)
+                 },
+                 #' @description
+                 #' Plot the mean squeared error over the iterations. At iteration zero, all predictions are initialized to be zero.
+                 #'
+                 #' @param newdata (`data.frame()`) \cr
+                 #' Plot the mean squared error out-of-sample. Has to be a data.frame with the same columns as in the trained model.
+                 #'
+                 #' @param individuals (`character()`) \cr
+                 #' Individuals to plot the weights for. Defaults to all individuals.
                  #'
                  #' @param iterations (`integer()`) \cr
                  #' Steps to plot the weights for. Defaults to all iterations.
                  #'
+                 #' @param interactive (`logical(1)`) \cr
+                 #' Create an interactive plot with `plotly`.
+                 #'
                  #' @return list
-                 heatmap = function(iterations = NULL){
-                   if (is.null(iterations)){
-                     iterations <- seq_len(private$iterations_)
+                 plot_mse = function(newdata = NULL,
+                                      individuals = NULL,
+                                      iterations = NULL,
+                                      interactive = TRUE){
+                   if (is.null(individuals)){
+                     individuals = private$level_ind_
                    }
-                   assertSubset(iterations,seq_len(private$iterations_))
-                   df <- reshape2::melt(private$W_path_[,,iterations])
-                   df$Var3 <- rep(iterations,each = nlevels(private$ind_)^2)
-                   heatmap <- ggplot(df, aes(x = .data$Var1, y = .data$Var2, fill =.data$value)) +
+                   if (is.null(iterations)){
+                     iterations = 0:private$iterations_
+                   }
+
+                   # check inputs
+                   if (!is.null(newdata)){
+                     assertDataFrame(newdata,any.missing = FALSE)
+                     assertFactor(newdata[,private$individ_])
+                   }
+                   assertCharacter(individuals)
+                   assertIntegerish(iterations)
+                   assertLogical(interactive, len = 1)
+                   assertSubset(iterations, seq(0, private$iterations_, by = 1))
+                   assertSubset(individuals, private$level_ind_)
+
+                   mse_is = self$calc_mse(newdata = self$data)
+                   df_ind = reshape2::melt(do.call(rbind, mse_is$ind_mse))
+                   df_ind$Sample = "In-Sample"
+                   df_all = data.frame("Var1" = rep("All", length(iterations)),
+                                        "Var2" = iterations,
+                                        "value" = mse_is$mse,
+                                        "Sample" = "In-Sample")
+
+                   if (!is.null(newdata)){
+                     mse_oos = self$calc_mse(newdata = self$data)
+                     df_ind_oos = reshape2::melt(do.call(rbind, mse_oos$ind_mse))
+                     df_ind_oos$Sample = "Out-of-Sample"
+                     df_all_oos = data.frame("Var1" = rep("All", length(iterations)),
+                                              "Var2" = iterations,
+                                              "value" = mse_oos$mse,
+                                              "Sample" = "Out-of-Sample")
+                     df_ind = rbind(df_ind, df_ind_oos)
+                     df_all = rbind(df_all, df_all_oos)
+                   }
+
+                   #filter for desired individuals
+                   df_ind_filtered_1 = df_ind[(vapply(df_ind$Var1, function(x) any(x == individuals), FUN.VALUE = FALSE)) & (vapply(df_ind$Var2, function(x) any(x == iterations), FUN.VALUE = FALSE)),]
+                   df_ind_filtered_2 = df_ind[(vapply(df_ind$Var1, function(x) !any(x == individuals), FUN.VALUE = FALSE)) & (vapply(df_ind$Var2, function(x) any(x == iterations), FUN.VALUE = FALSE)),]
+                   df_all_filtered = df_all[(vapply(df_all$Var2, function(x) any(x == iterations), FUN.VALUE = FALSE)),]
+
+                   if (interactive){
+                     df_ind_filtered_1$text = paste0("Individual: ", df_ind_filtered_1$Var1, "\n","Iteration: ", df_ind_filtered_1$Var2, "\n", "MSE: ",round(df_ind_filtered_1$value,2))
+                     if (dim(df_ind_filtered_2)[1] >0){
+                       df_ind_filtered_2$text = paste0("Individual: ", df_ind_filtered_2$Var1, "\n","Iteration: ", df_ind_filtered_2$Var2, "\n", "MSE: ",round(df_ind_filtered_2$value,2))
+                     }
+                     df_all_filtered$text = paste0("Individual: ", df_all_filtered$Var1, "\n","Iteration: ", df_all_filtered$Var2, "\n", "MSE: ",round(df_all_filtered$value,2))
+                   }
+
+                   cols = c("black", scales::hue_pal()(length(individuals)))
+                   names(cols) = c("All", individuals)
+                   plt = ggplot(df_all_filtered, aes(x=Var2, y=value)) +
+                     geom_line(data=df_ind_filtered_1, aes(color=Var1), size = .9) +
+                     suppressWarnings(geom_point(data=df_ind_filtered_1, aes(color=Var1, text = text), size = 2)) +
+                     geom_line(aes(color=Var1), size = .9) +
+                     suppressWarnings(geom_point(aes(color=Var1, text = text), size = 2)) +
+                     labs(title = "Mean Squared Error over Iterations\n", x = "Iteration", y = "MSE", color = "Individual\n") +
+                     theme(legend.position="bottom") +
+                     scale_color_manual(values = cols)
+
+                   if (dim(df_ind_filtered_2)[1] > 0){
+                     plt = plt + geom_line(data=df_ind_filtered_2, aes(group = Var1), color = "grey75", alpha = 0.5) +
+                       suppressWarnings(geom_point(data=df_ind_filtered_2, aes(group = Var1, text = text), color ="grey75", alpha = 0.5))
+                   }
+
+                   if (!is.null(newdata)){
+                     plt = plt + facet_wrap(~ Sample)
+                   }
+
+                   if (interactive){
+                     plt = plotly::ggplotly(plt, tooltip="text")
+                   }
+                   return(plt)
+                 },
+                 #' @description
+                 #' Plot the used weights as a heatmap.
+                 #'
+                 #' @param individuals (`character()`) \cr
+                 #' Individuals to plot the weights for. Defaults to all individuals.
+                 #'
+                 #' @param iterations (`integer()`) \cr
+                 #' Steps to plot the weights for. Defaults to all iterations.
+                 #'
+                 #' @param interactive (`logical(1)`) \cr
+                 #' Create an interactive plot with `plotly`.
+                 #'
+                 #' @param show_axis_text (`logical(1)`) \cr
+                 #' Show axis tick text.
+                 #'
+                 #' @return list
+                 heatmap = function(individuals = NULL,
+                                    iterations = NULL,
+                                    interactive = TRUE,
+                                    show_axis_text = TRUE){
+                   if (is.null(iterations)){
+                     iterations = seq_len(private$iterations_)
+                   }
+                   if (is.null(individuals)){
+                     individuals = private$level_ind_
+                   }
+                   # check inputs
+                   assertCharacter(individuals)
+                   assertIntegerish(iterations)
+                   assertLogical(interactive, len = 1)
+                   assertLogical(show_axis_text, len = 1)
+                   assertSubset(iterations, seq_len(private$iterations_))
+                   assertSubset(individuals, private$level_ind_)
+
+                   #reshape data
+                   df = reshape2::melt(private$W_path_[,,iterations])
+                   df$Var1 = as.factor(df$Var1)
+                   df$Var2 = as.factor(df$Var2)
+                   levels(df$Var1) = levels(df$Var2) = levels(private$ind_)
+                   df$Var3 = rep(iterations,each = nlevels(private$ind_)^2)
+                   df$text =paste0("Individual i: ", df$Var2, "\n","Individual j: ", df$Var1, "\n", "Weight: ",round(df$value,2))
+                   #filter data
+                   df_filtered = df[(vapply(df$Var1, function(x) any(x == individuals), FUN.VALUE = FALSE)) & (vapply(df$Var2, function(x) any(x == individuals), FUN.VALUE = FALSE)),]
+
+                   heatmap = ggplot(df_filtered, aes(x = .data$Var1, y = .data$Var2, fill =.data$value, text = .data$text)) +
                      geom_tile() +
-                     xlab(label = "Individual") +
-                     ylab(label = "Individual") +
-                     scale_x_continuous(breaks = seq_len(length(private$level_ind_))) +
-                     scale_y_continuous(breaks = seq_len(length(private$level_ind_))) +
+                     xlab(label = "Individual j") +
+                     ylab(label = "Individual i") +
+                     scale_x_discrete(limits = unlist(individuals)) +
+                     scale_y_discrete(limits = rev(unlist(individuals))) +
                      facet_wrap(~ .data$Var3) +
-                     scale_fill_gradient(name = "Weight",low = "#FFFFFF",high = "#012345") +
+                     viridis::scale_fill_viridis(name="Weight",option ="C") +
                      theme_bw() +
                      theme(strip.placement = "outside",
                                     plot.title = element_text(hjust = 0.5),
                                     strip.background = element_rect(fill = "#EEEEEE", color = "#FFFFFF")) +
                      ggtitle(label = "Weight Matrix") +
                      theme(legend.position="bottom")
+
+                   if (!show_axis_text){
+                     heatmap = heatmap +
+                       theme(axis.text.x = element_blank(),
+                             axis.text.y = element_blank())
+                   }
+
+                   if (interactive){
+                     heatmap = plotly::ggplotly(heatmap, tooltip="text")
+                   }
                    return(heatmap)
 
                  }
@@ -330,7 +520,7 @@ ADS <- R6Class("ADS",
                  iterations_ = NULL,
                  calc_dist_ = NULL,
                  calc_weight_ = NULL,
-                 predictions = NULL,
+                 predictions_ = NULL,
                  W_path_ = NULL,
                  learner_list_ = NULL,
                  task_list_ = NULL,

@@ -33,6 +33,9 @@ A vector.}
 
 \item{\code{weight_path}}{(\code{array()})\cr
 An array.}
+
+\item{\code{predictions}}{(\code{array()})\cr
+An array.}
 }
 \if{html}{\out{</div>}}
 }
@@ -43,6 +46,8 @@ An array.}
 \item \href{#method-print}{\code{ADS$print()}}
 \item \href{#method-fit}{\code{ADS$fit()}}
 \item \href{#method-predict}{\code{ADS$predict()}}
+\item \href{#method-calc_mse}{\code{ADS$calc_mse()}}
+\item \href{#method-plot_mse}{\code{ADS$plot_mse()}}
 \item \href{#method-heatmap}{\code{ADS$heatmap()}}
 \item \href{#method-clone}{\code{ADS$clone()}}
 }
@@ -134,8 +139,8 @@ Estimate ADS models.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{store_predictions}}{(\code{logical(1)}) \cr
-Indicates whether the predictions for the nuisance functions should be
-stored in field \code{predictions}. Default is \code{FALSE}.}
+Indicates whether the predictions should be
+stored in field \code{predictions_}. Default is \code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -149,7 +154,7 @@ self
 \subsection{Method \code{predict()}}{
 Predict ADS models on new data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ADS$predict(newdata)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ADS$predict(newdata, iterations = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -157,11 +162,70 @@ Predict ADS models on new data.
 \describe{
 \item{\code{newdata}}{(\code{data.frame()}) \cr
 Predicts the model on new data. Has to be a data.frame with the same columns as in the trained model.}
+
+\item{\code{iterations}}{(\code{vector()}) \cr
+Specifies the iterations to predict. Defaults to all iterations.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A vector containig the predicted values.
+An array containing the predicted values over different iterations.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-calc_mse"></a>}}
+\if{latex}{\out{\hypertarget{method-calc_mse}{}}}
+\subsection{Method \code{calc_mse()}}{
+Calculate the mean squared error for indiviuals over different iterations.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$calc_mse(newdata)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{newdata}}{(\code{data.frame()}) \cr
+Calculate the mean squared error on new data. Has to be a data.frame with the same columns as in the trained model.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list containing the mean squared error for indiviudals and the combined model.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot_mse"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_mse}{}}}
+\subsection{Method \code{plot_mse()}}{
+Plot the mean squeared error over the iterations. At iteration zero, all predictions are initialized to be zero.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ADS$plot_mse(
+  newdata = NULL,
+  individuals = NULL,
+  iterations = NULL,
+  interactive = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{newdata}}{(\code{data.frame()}) \cr
+Plot the mean squared error out-of-sample. Has to be a data.frame with the same columns as in the trained model.}
+
+\item{\code{individuals}}{(\code{character()}) \cr
+Individuals to plot the weights for. Defaults to all individuals.}
+
+\item{\code{iterations}}{(\code{integer()}) \cr
+Steps to plot the weights for. Defaults to all iterations.}
+
+\item{\code{interactive}}{(\code{logical(1)}) \cr
+Create an interactive plot with \code{plotly}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+list
 }
 }
 \if{html}{\out{<hr>}}
@@ -170,14 +234,28 @@ A vector containig the predicted values.
 \subsection{Method \code{heatmap()}}{
 Plot the used weights as a heatmap.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ADS$heatmap(iterations = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ADS$heatmap(
+  individuals = NULL,
+  iterations = NULL,
+  interactive = TRUE,
+  show_axis_text = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{individuals}}{(\code{character()}) \cr
+Individuals to plot the weights for. Defaults to all individuals.}
+
 \item{\code{iterations}}{(\code{integer()}) \cr
 Steps to plot the weights for. Defaults to all iterations.}
+
+\item{\code{interactive}}{(\code{logical(1)}) \cr
+Create an interactive plot with \code{plotly}.}
+
+\item{\code{show_axis_text}}{(\code{logical(1)}) \cr
+Show axis tick text.}
 }
 \if{html}{\out{</div>}}
 }
