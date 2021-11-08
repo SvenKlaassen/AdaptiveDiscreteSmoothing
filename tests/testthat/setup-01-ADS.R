@@ -117,7 +117,7 @@ ADS_function <- function(df,
     }
 
     #adjust weight matrix
-    W_path[,,it + 1] <- delta[it]*vapply(seq_len(N), function(i) {
+    W_path[,,it + 1] <- vapply(seq_len(N), function(i) {
       vapply(seq_len(N),function(j) {
         dist <- calc_dist(model_1 = learner_list[[i]],model_2 = learner_list[[j]],
                           gamma = gamma[it], task_list=task_list, kernel = kernel)

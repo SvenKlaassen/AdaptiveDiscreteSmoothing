@@ -74,7 +74,7 @@ for (learner in learnerlist){
 
                                        mse_2 <- mean((data$y-fit_2)^2)
                                        names(mse_2) <- iterations
-                                       expect_equal(mse_2, mse[iterations + 1], tolerance = 1e-1)
+                                       expect_equal(mse_2, mse[iterations + 1], tolerance = 1e-3)
 
                                        #test plot_mse
                                        plt_1 <- model$plot_mse(newdata = data, interactive = FALSE)
@@ -109,6 +109,7 @@ for (learner in learnerlist){
   patrick::with_parameters_test_that("Unit test for ADS",
     .cases = test_cases,
     {
+      set.seed(42)
       #create data
       n <- 20; N <- 5; p <- 2
       X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
@@ -116,7 +117,6 @@ for (learner in learnerlist){
       ind <- as.factor(rep(1:N,n)[sample(1:(n*N),n*N)])
       data <- data.frame(X,"y" = Y, "ind" = ind)
 
-      set.seed(42)
       model <- ADS$new(data = data,
                        target = "y",
                        individ = "ind",
@@ -152,7 +152,6 @@ for (learner in learnerlist){
       names(mse_pred) <- seq(0,iterations, by = 1)
       expect_equal(mse_pred, mse, tolerance = 1e-2)
 
-      set.seed(42)
       model_2 <- ADS_function(df = data,
                               target = "y",
                               individ = "ind",
@@ -167,7 +166,7 @@ for (learner in learnerlist){
 
       mse_2 <- mean((data$y-fit_2)^2)
       names(mse_2) <- iterations
-      expect_equal(mse_2, mse[iterations + 1], tolerance = 1e-1)
+      expect_equal(mse_2, mse[iterations + 1], tolerance = 1e-3)
 
       #test plot_mse
       plt_1 <- model$plot_mse(newdata = data, interactive = FALSE)
