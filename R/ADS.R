@@ -379,6 +379,7 @@ ADS = R6Class("ADS",
 
                    mse_is = self$calc_mse(newdata = self$data)
                    df_ind = reshape2::melt(do.call(rbind, mse_is$ind_mse))
+                   df_ind$Var1 = as.character(df_ind$Var1)
                    df_ind$Sample = "In-Sample"
                    df_all = data.frame("Var1" = rep("All", length(iterations)),
                                         "Var2" = iterations,
@@ -388,6 +389,7 @@ ADS = R6Class("ADS",
                    if (!is.null(newdata)){
                      mse_oos = self$calc_mse(newdata = self$data)
                      df_ind_oos = reshape2::melt(do.call(rbind, mse_oos$ind_mse))
+                     df_ind_oos$Var1 = as.character(df_ind_oos$Var1)
                      df_ind_oos$Sample = "Out-of-Sample"
                      df_all_oos = data.frame("Var1" = rep("All", length(iterations)),
                                               "Var2" = iterations,
@@ -412,7 +414,14 @@ ADS = R6Class("ADS",
 
                    cols = c("black", scales::hue_pal()(length(individuals)))
                    names(cols) = c("All", individuals)
-                   plt = ggplot(df_all_filtered, aes(x=Var2, y=value)) +
+                   plt = ggplot(df_all_filtered, aes(x=Var2, y=value))
+
+                   if (dim(df_ind_filtered_2)[1] > 0){
+                     plt = plt + geom_line(data=df_ind_filtered_2, aes(group = Var1), color = "grey75", alpha = 0.5) +
+                       suppressWarnings(geom_point(data=df_ind_filtered_2, aes(group = Var1, text = text), color ="grey75", alpha = 0.5))
+                   }
+
+                   plt = plt +
                      geom_line(data=df_ind_filtered_1, aes(color=Var1), size = .9) +
                      suppressWarnings(geom_point(data=df_ind_filtered_1, aes(color=Var1, text = text), size = 2)) +
                      geom_line(aes(color=Var1), size = .9) +
@@ -420,11 +429,6 @@ ADS = R6Class("ADS",
                      labs(title = "Mean Squared Error over Iterations\n", x = "Iteration", y = "MSE", color = "Individual\n") +
                      theme(legend.position="bottom") +
                      scale_color_manual(values = cols)
-
-                   if (dim(df_ind_filtered_2)[1] > 0){
-                     plt = plt + geom_line(data=df_ind_filtered_2, aes(group = Var1), color = "grey75", alpha = 0.5) +
-                       suppressWarnings(geom_point(data=df_ind_filtered_2, aes(group = Var1, text = text), color ="grey75", alpha = 0.5))
-                   }
 
                    if (!is.null(newdata)){
                      plt = plt + facet_wrap(~ Sample)

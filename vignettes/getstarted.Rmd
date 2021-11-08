@@ -63,11 +63,32 @@ model <- ADS$new(data = data,
                  iterations = 4)
 model$fit()
 ```
-Finally, we can predict new values by using the `ADS$predict()` method.
+Finally, we can predict new values by using the `ADS$predict()` method. Here, the columns correspond the number of iterations.
 ```{r}
-mse <- mean((data$y - model$predict(newdata = data))^2)
+
+print(head(model$predict(newdata = data)))
+
+mse <- colMeans((data$y - model$predict(newdata = data))^2)
 print(mse)
 ```
+The individual mean squared error can be easily calculated via the `ADS$calc_mse()` method.
+
+```{r}
+mse_list <- model$calc_mse(newdata = data)
+
+#Overall MSE (as above)
+print(mse_list$mse)
+
+#Individual MSE 
+print(mse_list$ind_mse$`1`)
+```
+The individual mean squared error can easily be plotted via the `ADS$plot_mse()` method.
+```{r}
+individuals <- as.character(c(1,5,10))
+model$plot_mse(individuals = individuals)
+```
+
+
 One can easily take a look at the estimated weights via the `ADS$heatmap()` method
 ```{r}
 model$heatmap()
