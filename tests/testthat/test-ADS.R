@@ -3,16 +3,16 @@ test_cases <- expand.grid(
   kernel =  c("gaussian","epa","unif","tri"),
   stringsAsFactors = FALSE)
 
-test_cases["test_name"] = apply(test_cases, 1, paste, collapse = "_")
+test_cases[".test_name"] = apply(test_cases, 1, paste, collapse = "_")
 
 learnerlist <- list(mlr_learners$get("regr.lm"),
-                    mlr_learners$get("regr.cv_glmnet"),
                     mlr_learners$get("regr.rpart"))
 
 for (learner in learnerlist){
-  patrick::with_parameters_test_that("Unit test for ADS",
+  patrick::with_parameters_test_that(desc_stub = "Unit test for ADS",
                                      .cases = test_cases,
-                                     {
+                                     code = {
+                                       set.seed(42)
                                        #create data
                                        n <- 20; N <- 5; p <- 2
                                        X <- matrix(runif(N*n*p),nrow = n*N, ncol = p)
@@ -23,7 +23,6 @@ for (learner in learnerlist){
                                        gamma <- 1
                                        iterations <- 1
 
-                                       set.seed(42)
                                        model <- ADS$new(data = data,
                                                         target = "y",
                                                         individ = "ind",
@@ -59,7 +58,6 @@ for (learner in learnerlist){
                                        names(mse_pred) <- seq(0,iterations, by = 1)
                                        expect_equal(mse_pred, mse, tolerance = 1e-2)
 
-                                       set.seed(42)
                                        model_2 <- ADS_function(df = data,
                                                                target = "y",
                                                                individ = "ind",
@@ -99,10 +97,9 @@ test_cases <- expand.grid(
   gamma = 1,
   stringsAsFactors = FALSE)
 
-test_cases["test_name"] = apply(test_cases, 1, paste, collapse = "_")
+test_cases[".test_name"] = apply(test_cases, 1, paste, collapse = "_")
 
 learnerlist <- list(mlr_learners$get("regr.lm"),
-                    mlr_learners$get("regr.cv_glmnet"),
                     mlr_learners$get("regr.rpart"))
 
 for (learner in learnerlist){
@@ -150,7 +147,7 @@ for (learner in learnerlist){
       mse <- model$calc_mse(newdata = data)$mse
       mse_pred <- colMeans((data$y-cbind(0,model$predictions))^2)
       names(mse_pred) <- seq(0,iterations, by = 1)
-      expect_equal(mse_pred, mse, tolerance = 1e-2)
+      expect_equal(mse_pred, mse, tolerance = 1e-3)
 
       model_2 <- ADS_function(df = data,
                               target = "y",
