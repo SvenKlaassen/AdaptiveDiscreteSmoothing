@@ -14,10 +14,11 @@ knitr::opts_chunk$set(
 )
 
 knitr::opts_chunk$set(
- fig.width = 6,
- fig.asp = 0.8,
- out.width = "80%",
- fig.align = "center"
+  rmarkdown.html_vignette.check_title = FALSE,
+  fig.width = 6,
+  fig.asp = 0.8,
+  out.width = "80%",
+  fig.align = "center"
 )
 ```
 

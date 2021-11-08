@@ -14,10 +14,11 @@ knitr::opts_chunk$set(
 )
 
 knitr::opts_chunk$set(
- fig.width = 6,
- fig.asp = 0.8,
- out.width = "80%",
- fig.align = "center"
+    rmarkdown.html_vignette.check_title = FALSE,
+    fig.width = 6,
+    fig.asp = 0.8,
+    out.width = "80%",
+    fig.align = "center"
 )
 ```
 
@@ -95,10 +96,11 @@ The values of $\alpha$ are sorted increasingly, to be able to interpret the weig
 We can apply the same learners as above or work with different learners. For example we can use random forests from the [ranger-package](https://cran.r-project.org/web/packages/ranger/index.html) or
 ```{r}
 learner = mlr_learners$get("regr.ranger")
+learner$param_set$values = list(num.trees = 50, mtry = 3)
 model_rf <- ADS$new(data = data,
                  target = "y",
                  individ = "ind",
-                 learner = mlr_learners$get("regr.ranger"),
+                 learner = learner,
                  iterations = 4)
 model_rf$fit()
 ```
@@ -167,10 +169,12 @@ data <- data.frame(X,"y" = Y, "ind" = ind)
 ```
 
 ```{r}
+learner = mlr_learners$get("regr.ranger")
+learner$param_set$values = list(num.trees = 50, mtry = 3)
 model_rf <- ADS$new(data = data,
                  target = "y",
                  individ = "ind",
-                 learner = mlr_learners$get("regr.ranger"),
+                 learner = learner,
                  iterations = 4)
 model_rf$fit()
 ```

@@ -6,7 +6,8 @@ test_cases <- expand.grid(
 test_cases[".test_name"] = apply(test_cases, 1, paste, collapse = "_")
 
 learnerlist <- list(mlr_learners$get("regr.lm"),
-                    mlr_learners$get("regr.rpart"))
+                    mlr_learners$get("regr.rpart"),
+                    mlr_learners$get("regr.cv_glmnet"))
 
 for (learner in learnerlist){
   patrick::with_parameters_test_that(desc_stub = "Unit test for ADS",
@@ -41,6 +42,7 @@ for (learner in learnerlist){
                                        expect_equal(model$gamma, rep(gamma,iterations))
 
                                        #check fiting
+                                       set.seed(42)
                                        model$fit(store_predictions = TRUE)
                                        expect_length(model$task_list,iterations)
                                        for (it in 1:iterations){expect_length(model$task_list[[it]],N)}
@@ -56,8 +58,9 @@ for (learner in learnerlist){
                                        mse <- model$calc_mse(newdata = data)$mse
                                        mse_pred <- colMeans((data$y-cbind(0,model$predictions))^2)
                                        names(mse_pred) <- seq(0,iterations, by = 1)
-                                       expect_equal(mse_pred, mse, tolerance = 1e-2)
+                                       expect_equal(mse_pred, mse, tolerance = 1e-3)
 
+                                       set.seed(42)
                                        model_2 <- ADS_function(df = data,
                                                                target = "y",
                                                                individ = "ind",
@@ -72,7 +75,7 @@ for (learner in learnerlist){
 
                                        mse_2 <- mean((data$y-fit_2)^2)
                                        names(mse_2) <- iterations
-                                       expect_equal(mse_2, mse[iterations + 1], tolerance = 1e-3)
+                                       expect_equal(mse_2, mse[iterations + 1], tolerance = 1e-1)
 
                                        #test plot_mse
                                        plt_1 <- model$plot_mse(newdata = data, interactive = FALSE)
@@ -100,7 +103,8 @@ test_cases <- expand.grid(
 test_cases[".test_name"] = apply(test_cases, 1, paste, collapse = "_")
 
 learnerlist <- list(mlr_learners$get("regr.lm"),
-                    mlr_learners$get("regr.rpart"))
+                    mlr_learners$get("regr.rpart"),
+                    mlr_learners$get("regr.cv_glmnet"))
 
 for (learner in learnerlist){
   patrick::with_parameters_test_that("Unit test for ADS",
@@ -132,6 +136,7 @@ for (learner in learnerlist){
       expect_equal(model$gamma, rep(gamma,iterations))
 
       #check fiting
+      set.seed(42)
       model$fit(store_predictions = TRUE)
       expect_length(model$task_list,iterations)
       for (it in 1:iterations){expect_length(model$task_list[[it]],N)}
@@ -149,6 +154,7 @@ for (learner in learnerlist){
       names(mse_pred) <- seq(0,iterations, by = 1)
       expect_equal(mse_pred, mse, tolerance = 1e-3)
 
+      set.seed(42)
       model_2 <- ADS_function(df = data,
                               target = "y",
                               individ = "ind",
@@ -163,7 +169,7 @@ for (learner in learnerlist){
 
       mse_2 <- mean((data$y-fit_2)^2)
       names(mse_2) <- iterations
-      expect_equal(mse_2, mse[iterations + 1], tolerance = 1e-3)
+      expect_equal(mse_2, mse[iterations + 1], tolerance = 1e-1)
 
       #test plot_mse
       plt_1 <- model$plot_mse(newdata = data, interactive = FALSE)
