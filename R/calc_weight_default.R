@@ -14,15 +14,20 @@
 #' A weight corresponding to the distance
 #' @export
 calc_weight_default <- function(dist, delta = 0.7, gamma = 0.5, kernel = "gaussian", ...){
-  checkmate::assertChoice(kernel,c("gaussian","epa","unif","tri"))
+  checkmate::assertChoice(kernel,c("gaussian","epa","unif","tri","quart","paper"))
+  scaled_dist <- dist/gamma
   if (kernel == "gaussian"){
-    weight <- sqrt(pi/gamma)*evmix::kdgaussian(x = dist, lambda = 1/(sqrt(2*gamma)))
+    weight <- exp(-scaled_dist^2/2)
   } else if (kernel == "epa") {
-    weight <- 4/(3*gamma)*evmix::kdepanechnikov(x = dist, lambda = 1/gamma)
+    weight <- vapply(scaled_dist, function(x){max(1-x^2,0)},FUN.VALUE = numeric(1))
   } else if (kernel == "unif") {
-    weight <- 2/gamma * evmix::kduniform(x = dist, lambda = 1/gamma)
+    weight <- 2*ifelse(scaled_dist <= 1, 1/2, 0)
   } else if (kernel == "tri") {
-    weight <- 1/gamma*evmix::kdtriangular(x = dist, lambda = 1/gamma)
+    weight <- vapply(scaled_dist, function(x){max(1-x,0)},FUN.VALUE = numeric(1))
+  } else if (kernel == "quart") {
+    weight <- vapply(scaled_dist, function(x){max((1-x^2)^2,0)},FUN.VALUE = numeric(1))
+  } else if (kernel == "paper"){
+    weight <- exp(-gamma*dist)
   }
   return(delta*weight)
 }

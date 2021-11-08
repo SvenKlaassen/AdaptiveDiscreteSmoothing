@@ -1,6 +1,6 @@
 # test different inputs ####
 test_cases <- expand.grid(
-  kernel =  c("gaussian","epa","unif","tri"),
+  kernel =  c("gaussian","epa","unif","tri","quart","paper"),
   stringsAsFactors = FALSE)
 
 test_cases[".test_name"] = apply(test_cases, 1, paste, collapse = "_")
@@ -94,7 +94,7 @@ for (learner in learnerlist){
 
 # test different inputs ####
 test_cases <- expand.grid(
-  kernel =  c("gaussian","epa","unif","tri"),
+  kernel =  c("gaussian","epa","unif","tri","quart","paper"),
   iterations = 2,
   delta = 0.7,
   gamma = 1,

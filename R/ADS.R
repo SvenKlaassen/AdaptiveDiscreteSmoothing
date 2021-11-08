@@ -138,6 +138,7 @@ ADS = R6Class("ADS",
                      checkmate::assertTRUE(length(delta) == iterations)
                    }
                    assertNumeric(gamma,lower = 0)
+                   assertTRUE(all(gamma > 0))
                    if (length(gamma) == 1){
                      gamma = rep(gamma,iterations)
                    } else {

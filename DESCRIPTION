@@ -18,7 +18,6 @@ RoxygenNote: 7.1.2
 Imports: 
     checkmate,
     R6,
-    evmix,
     mlr3,
     mlr3learners,
     reshape2,
