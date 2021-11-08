@@ -174,6 +174,9 @@ A vector.</p></dd>
 <dt><code>weight_path</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/array.html'>array()</a></code>)<br />
 An array.</p></dd>
 
+<dt><code>predictions</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/array.html'>array()</a></code>)<br />
+An array.</p></dd>
+
 </dl><p></div></p>
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
@@ -185,6 +188,8 @@ An array.</p></dd>
 <li><p><a href='#method-print'><code>ADS$print()</code></a></p></li>
 <li><p><a href='#method-fit'><code>ADS$fit()</code></a></p></li>
 <li><p><a href='#method-predict'><code>ADS$predict()</code></a></p></li>
+<li><p><a href='#method-calc_mse'><code>ADS$calc_mse()</code></a></p></li>
+<li><p><a href='#method-plot_mse'><code>ADS$plot_mse()</code></a></p></li>
 <li><p><a href='#method-heatmap'><code>ADS$heatmap()</code></a></p></li>
 <li><p><a href='#method-clone'><code>ADS$clone()</code></a></p></li>
 </ul>
@@ -209,10 +214,10 @@ An array.</p></dd>
 <dt><code>data</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/data.frame.html'>data.frame()</a></code>) <br />
 Data.frame containing the target variable, the covariates and a column with the corresponding individuals.</p></dd>
 
-<dt><code>target</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>) <br />
+<dt><code>target</code></dt><dd><p>(<code>character(1)</code>) <br />
 Name of the target variable.</p></dd>
 
-<dt><code>individ</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>) <br />
+<dt><code>individ</code></dt><dd><p>(<code>character(1)</code>) <br />
 Name of the column with the individuals. Column has to be a factor.</p></dd>
 
 <dt><code>learner</code></dt><dd><p>(<code><a href='https://mlr3.mlr-org.com/reference/LearnerRegr.html'>LearnerRegr</a></code>) <br />
@@ -224,7 +229,7 @@ Parameter for the loss function</p></dd>
 <dt><code>gamma</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/Special.html'>gamma()</a></code>) <br />
 Parameter for the loss function</p></dd>
 
-<dt><code>iterations</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/integer.html'>integer(1)</a></code>) <br />
+<dt><code>iterations</code></dt><dd><p>(<code>integer(1)</code>) <br />
 Number of iterations.</p></dd>
 
 <dt><code>W_start</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/matrix.html'>matrix()</a></code>) <br />
@@ -257,9 +262,9 @@ A list. If not set to default a list with the following components:
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>store_predictions</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>) <br />
-Indicates whether the predictions for the nuisance functions should be
-stored in field <code>predictions</code>. Default is <code>FALSE</code>.</p></dd>
+<dt><code>store_predictions</code></dt><dd><p>(<code>logical(1)</code>) <br />
+Indicates whether the predictions should be
+stored in field <code>predictions_</code>. Default is <code>FALSE</code>.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
@@ -267,25 +272,82 @@ stored in field <code>predictions</code>. Default is <code>FALSE</code>.</p></dd
 <p><hr>
 <a id="method-predict"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/predict.html'>predict()</a></code></h3>
 <p>Predict ADS models on new data.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>ADS</span><span class='op'>$</span><span class='fu'>predict</span><span class='op'>(</span><span class='va'>newdata</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>ADS</span><span class='op'>$</span><span class='fu'>predict</span><span class='op'>(</span><span class='va'>newdata</span>, iterations <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
 <dt><code>newdata</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/data.frame.html'>data.frame()</a></code>) <br />
 Predicts the model on new data. Has to be a data.frame with the same columns as in the trained model.</p></dd>
 
+<dt><code>iterations</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/vector.html'>vector()</a></code>) <br />
+Specifies the iterations to predict. Defaults to all iterations.</p></dd>
+
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A vector containig the predicted values.</p>
+<p>An array containing the predicted values over different iterations.</p>
 <p><hr>
-<a id="method-heatmap"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/heatmap.html'>heatmap()</a></code></h3>
-<p>Plot the used weights as a heatmap.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>ADS</span><span class='op'>$</span><span class='fu'>heatmap</span><span class='op'>(</span>iterations <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre><p></div></p>
+<a id="method-calc_mse"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>calc_mse()</code></h3>
+<p>Calculate the mean squared error for indiviuals over different iterations.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ADS</span><span class='op'>$</span><span class='fu'>calc_mse</span><span class='op'>(</span><span class='va'>newdata</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
+<dt><code>newdata</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/data.frame.html'>data.frame()</a></code>) <br />
+Calculate the mean squared error on new data. Has to be a data.frame with the same columns as in the trained model.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list containing the mean squared error for indiviudals and the combined model.</p>
+<p><hr>
+<a id="method-plot_mse"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>plot_mse()</code></h3>
+<p>Plot the mean squeared error over the iterations. At iteration zero, all predictions are initialized to be zero.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ADS</span><span class='op'>$</span><span class='fu'>plot_mse</span><span class='op'>(</span>
+  newdata <span class='op'>=</span> <span class='cn'>NULL</span>,
+  individuals <span class='op'>=</span> <span class='cn'>NULL</span>,
+  iterations <span class='op'>=</span> <span class='cn'>NULL</span>,
+  interactive <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>newdata</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/data.frame.html'>data.frame()</a></code>) <br />
+Plot the mean squared error out-of-sample. Has to be a data.frame with the same columns as in the trained model.</p></dd>
+
+<dt><code>individuals</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>) <br />
+Individuals to plot the weights for. Defaults to all individuals.</p></dd>
+
 <dt><code>iterations</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/integer.html'>integer()</a></code>) <br />
 Steps to plot the weights for. Defaults to all iterations.</p></dd>
+
+<dt><code>interactive</code></dt><dd><p>(<code>logical(1)</code>) <br />
+Create an interactive plot with <code>plotly</code>.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>list</p>
+<p><hr>
+<a id="method-heatmap"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/heatmap.html'>heatmap()</a></code></h3>
+<p>Plot the used weights as a heatmap.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ADS</span><span class='op'>$</span><span class='fu'>heatmap</span><span class='op'>(</span>
+  individuals <span class='op'>=</span> <span class='cn'>NULL</span>,
+  iterations <span class='op'>=</span> <span class='cn'>NULL</span>,
+  interactive <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  show_axis_text <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>individuals</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>) <br />
+Individuals to plot the weights for. Defaults to all individuals.</p></dd>
+
+<dt><code>iterations</code></dt><dd><p>(<code><a href='https://rdrr.io/r/base/integer.html'>integer()</a></code>) <br />
+Steps to plot the weights for. Defaults to all iterations.</p></dd>
+
+<dt><code>interactive</code></dt><dd><p>(<code>logical(1)</code>) <br />
+Create an interactive plot with <code>plotly</code>.</p></dd>
+
+<dt><code>show_axis_text</code></dt><dd><p>(<code>logical(1)</code>) <br />
+Show axis tick text.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
